@@ -3,135 +3,294 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Pillow - หมอนสมาร์ทกันไหลตาย</title>
+  <title>Smart Pillow Dashboard</title>
   
-  <!-- Tailwind CSS CDN & Font Awesome -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-  <!-- ดึงไฟล์ style.css แยกจากภายนอก -->
-  <link rel="stylesheet" href="style.css">
+  <!-- Lucide Icons (ชุดไอคอน) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- ฟอนต์ Kanit -->
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Kanit', sans-serif; }
+  </style>
 </head>
-<body class="bg-custom min-h-screen text-white font-sans">
+<body class="bg-[#fcfaf7] text-slate-800 min-h-screen flex flex-col md:flex-row">
 
-  <!-- เลเยอร์มืดใสซ้อนทับรูปภาพ -->
-  <div class="min-h-screen bg-slate-950/80 backdrop-blur-[2px] flex flex-col justify-between">
+  <!-- ==================== MOBILE TOP BAR (สำหรับจอมือถือ) ==================== -->
+  <div class="md:hidden bg-[#0d1527] text-white p-4 flex justify-between items-center sticky top-0 z-20 shadow-md">
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 bg-amber-500 rounded-xl flex items-center justify-center font-bold text-slate-900">🌙</div>
+      <span class="font-bold text-lg">Smart Pillow</span>
+    </div>
+    <!-- ปุ่มสามขีด (Hamburger Button) -->
+    <button onclick="toggleSidebar()" class="p-2 text-slate-300 hover:text-white rounded-lg focus:outline-none bg-slate-800">
+      <i data-lucide="menu" class="w-6 h-6"></i>
+    </button>
+  </div>
 
-    <!-- Header ด้านบน -->
-    <header class="p-4 bg-slate-900/85 backdrop-blur-md border-b border-slate-800 flex justify-between items-center sticky top-0 z-50">
-      <div class="flex items-center space-x-3">
-        <div class="bg-indigo-600 p-2.5 rounded-xl text-xl shadow-lg">
-          <i class="fa-solid fa-bed-pulse"></i>
-        </div>
-        <div>
-          <h1 class="text-base font-bold tracking-wide">Smart Pillow</h1>
-          <p class="text-[11px] text-slate-300">ระบบเฝ้าระวังและกระตุ้นการเตือน</p>
-        </div>
-      </div>
-      <span class="inline-flex items-center gap-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        ออนไลน์
-      </span>
-    </header>
+  <!-- ฉากหลังดำใสมืดเมื่อเปิดแถบเมนูบนมือถือ -->
+  <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-30 hidden md:hidden transition-opacity"></div>
 
-    <!-- เนื้อหาหลัก (Dashboard) -->
-    <main class="p-5 max-w-md mx-auto w-full flex-grow space-y-4 flex flex-col justify-center">
-      
-      <!-- การ์ดแสดงระดับเสียงสด -->
-      <div class="bg-slate-900/85 border border-slate-700/70 p-6 rounded-2xl w-full shadow-2xl backdrop-blur-md text-center">
-        <p class="text-xs text-slate-400 tracking-wider uppercase font-medium mb-2">ระดับเสียงปัจจุบัน</p>
-        
-        <div class="flex justify-center items-baseline my-3">
-          <span class="text-6xl font-black text-indigo-400 tracking-tight" id="dbValue">60.0</span>
-          <span class="text-lg text-slate-400 font-semibold ml-2">dB</span>
-        </div>
-
-        <!-- แถบวัดความดัง -->
-        <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden border border-slate-700/50 my-3">
-          <div id="dbBar" class="bg-indigo-500 h-full rounded-full transition-all duration-300" style="width: 60%;"></div>
-        </div>
-
-        <div class="flex justify-between text-xs text-slate-400 mt-2">
-          <span>ปกติ (~60 dB)</span>
-          <span class="text-amber-400 font-medium">เกณฑ์เตือน (>80 dB / 1.5s)</span>
-        </div>
-      </div>
-
-      <!-- สวิตช์และปุ่มควบคุม -->
-      <div class="grid grid-cols-2 gap-3">
-        <!-- เปิด-ปิด เฝ้าระวัง -->
-        <div class="bg-slate-900/85 border border-slate-700/70 rounded-xl p-4 flex flex-col justify-between backdrop-blur-md">
-          <div class="flex justify-between items-start mb-2">
-            <i class="fa-solid fa-shield-halved text-2xl text-emerald-400"></i>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" checked class="sr-only peer">
-              <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-            </label>
-          </div>
+  <!-- ==================== SIDEBAR (เมนูด้านข้างที่เปิด-ปิดได้) ==================== -->
+  <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 bg-[#0d1527] text-slate-300 p-5 flex flex-col justify-between z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out h-screen overflow-y-auto shadow-xl md:shadow-none">
+    
+    <div>
+      <!-- แถบหัวข้อ Sidebar -->
+      <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-amber-500 rounded-2xl flex items-center justify-center font-bold text-slate-900 text-xl shadow-lg">🌙</div>
           <div>
-            <p class="text-sm font-semibold">เฝ้าระวังอัตโนมัติ</p>
-            <p class="text-[11px] text-slate-400">สั่นเมื่อเสียงเกินเกณฑ์</p>
+            <h1 class="font-bold text-white text-base leading-tight">Smart Pillow 360</h1>
+            <p class="text-[10px] text-slate-400">ระบบเฝ้าระวังและติดตามความปลอดภัย</p>
           </div>
         </div>
-
-        <!-- ปุ่มสั่งสั่นทดสอบ -->
-        <button onclick="testVibration()" class="bg-slate-900/85 hover:bg-slate-800/90 active:scale-95 transition border border-slate-700/70 rounded-xl p-4 text-left flex flex-col justify-between backdrop-blur-md">
-          <div class="flex justify-between items-start mb-2">
-            <i class="fa-solid fa-vial text-2xl text-amber-400"></i>
-            <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">ทดสอบ</span>
-          </div>
-          <div>
-            <p class="text-sm font-semibold">สั่งสั่นมอเตอร์</p>
-            <p class="text-[11px] text-slate-400">สั่นทดสอบ 3 วินาที</p>
-          </div>
+        <!-- ปุ่มกากบาทปิดเมนู (เฉพาะมือถือ) -->
+        <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-6 h-6"></i>
         </button>
       </div>
 
-      <!-- ประวัติการเตือนล่าสุด -->
-      <div class="bg-slate-900/85 border border-slate-700/70 rounded-xl p-4 backdrop-blur-md">
-        <h2 class="text-xs font-bold mb-3 flex items-center gap-2 text-slate-300 uppercase tracking-wider">
-          <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i> ประวัติการเตือนล่าสุด
-        </h2>
-        <ul class="space-y-2 text-xs text-slate-300" id="logList">
-          <li class="flex justify-between items-center bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
-            <span class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-              เสียงดังเกิน 82.1 dB (1.6s)
-            </span>
-            <span class="text-slate-500 text-[11px]">02:15 น.</span>
-          </li>
-          <li class="flex justify-between items-center bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
-            <span class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-              ระบบเริ่มทำงาน
-            </span>
-            <span class="text-slate-500 text-[11px]">23:00 น.</span>
-          </li>
-        </ul>
+      <!-- รายการเมนู -->
+      <nav class="space-y-1 text-sm">
+        <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-indigo-600/30 text-white font-medium border border-indigo-500/30">
+          <i data-lucide="layout-grid" class="w-5 h-5 text-indigo-400"></i>
+          <span>แดชบอร์ด</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
+          <i data-lucide="activity" class="w-5 h-5"></i>
+          <span>ติดตามสด</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
+          <i data-lucide="camera" class="w-5 h-5"></i>
+          <span>ตั้งค่ากล้อง & ปรับเทียบ</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
+          <i data-lucide="cpu" class="w-5 h-5"></i>
+          <span>การเชื่อมต่อฮาร์ดแวร์</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
+          <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+          <span>วิเคราะห์เสียง & การกรน</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
+          <i data-lucide="history" class="w-5 h-5"></i>
+          <span>ประวัติการนอน</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
+          <i data-lucide="heart-pulse" class="w-5 h-5"></i>
+          <span>การศึกษาด้านสุขภาพ</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
+          <i data-lucide="bell" class="w-5 h-5"></i>
+          <span>การแจ้งเตือน</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
+          <i data-lucide="settings" class="w-5 h-5"></i>
+          <span>ตั้งค่าอุปกรณ์</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
+          <i data-lucide="shield" class="w-5 h-5"></i>
+          <span>ความเป็นส่วนตัว & ความปลอดภัย</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="pt-4 border-t border-slate-800 text-xs text-slate-500">
+      Smart Pillow System v1.0
+    </div>
+  </aside>
+
+  <!-- ==================== MAIN CONTENT AREA (เนื้อหาแดชบอร์ด) ==================== -->
+  <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+    
+    <!-- Header & Action Buttons -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-slate-900">แดชบอร์ดติดตามแบบเรียลไทม์</h2>
+        <div class="flex items-center space-x-2 text-xs text-slate-500 mt-1">
+          <i data-lucide="clock" class="w-4 h-4"></i>
+          <span>00:00:00</span>
+          <span class="text-slate-400">ยังไม่เริ่มเซสชัน</span>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition">
+          <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+          <span>เริ่มเซสชัน</span>
+        </button>
+        <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition">
+          <i data-lucide="flask-conical" class="w-4 h-4"></i>
+          <span>เปิดโหมดสาธิต</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Medical Alert Banner -->
+    <div class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 text-xs text-amber-900 flex items-start space-x-3 mb-6 shadow-sm">
+      <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+      <p class="leading-relaxed">
+        <strong class="font-semibold">ข้อควรทราบทางการแพทย์:</strong> ระบบนี้เป็นต้นแบบเพื่อการวิจัยและการศึกษา ไม่ใช่อุปกรณ์วินิจฉัยทางการแพทย์ ไม่สามารถวินิจฉัยภาวะหยุดหายใจขณะนอนหรือป้องกัน SIDS ได้ ผลการตรวจวัดเป็นเพียงตัวชี้วัดคัดกรองเบื้องต้น หากมีอาการกังวล โปรดปรึกษาแพทย์ผู้เชี่ยวชาญ
+      </p>
+    </div>
+
+    <!-- Status Grid (สถานะอุปกรณ์) -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
+            <i data-lucide="wifi" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <p class="text-[11px] text-slate-400">สถานะฮาร์ดแวร์</p>
+            <p class="text-sm font-semibold text-slate-800">เชื่อมต่อแล้ว</p>
+          </div>
+        </div>
+        <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
       </div>
 
-    </main>
+      <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="p-2.5 bg-slate-100 text-slate-500 rounded-xl">
+            <i data-lucide="camera" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <p class="text-[11px] text-slate-400">สถานะกล้อง</p>
+            <p class="text-sm font-semibold text-slate-800">ไม่ได้เชื่อมต่อ</p>
+          </div>
+        </div>
+        <span class="w-2.5 h-2.5 bg-slate-300 rounded-full"></span>
+      </div>
 
-    <!-- Footer -->
-    <footer class="p-4 text-center text-xs text-slate-400 border-t border-slate-800 bg-slate-900/85 backdrop-blur-md">
-      Smart Anti-Suffocation Pillow Project © 2026
-    </footer>
+      <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="p-2.5 bg-slate-100 text-slate-500 rounded-xl">
+            <i data-lucide="mic" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <p class="text-[11px] text-slate-400">Microphone</p>
+            <p class="text-sm font-semibold text-slate-800">ไม่ได้เชื่อมต่อ</p>
+          </div>
+        </div>
+        <span class="w-2.5 h-2.5 bg-slate-300 rounded-full"></span>
+      </div>
 
-  </div>
+      <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="p-2.5 bg-slate-100 text-slate-500 rounded-xl">
+            <i data-lucide="cpu" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <p class="text-[11px] text-slate-400">สถานะมอเตอร์</p>
+            <p class="text-sm font-semibold text-slate-800">พัก</p>
+          </div>
+        </div>
+        <span class="w-2.5 h-2.5 bg-slate-300 rounded-full"></span>
+      </div>
+    </div>
 
+    <!-- Metrics Row (การ์ดแสดงค่าเดซิเบล) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      
+      <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex justify-between items-start mb-3">
+          <p class="text-xs text-slate-400">ระดับเสียงปัจจุบัน</p>
+          <div class="p-2 bg-sky-500 text-white rounded-xl">
+            <i data-lucide="volume-2" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-bold text-slate-900 mb-1">
+          46.4 <span class="text-sm font-normal text-slate-400">dB</span>
+        </div>
+        <p class="text-[11px] text-slate-400">ยังไม่ได้ปรับเทียบ</p>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex justify-between items-start mb-3">
+          <p class="text-xs text-slate-400">เสียงสูงสุดในเซสชัน</p>
+          <div class="p-2 bg-amber-500 text-white rounded-xl">
+            <i data-lucide="activity" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-bold text-slate-900">
+          46.4 <span class="text-sm font-normal text-slate-400">dB</span>
+        </div>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex justify-between items-start mb-3">
+          <p class="text-xs text-slate-400">ระดับเสียงเฉลี่ย</p>
+          <div class="p-2 bg-emerald-500 text-white rounded-xl">
+            <i data-lucide="volume-2" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-bold text-slate-900">
+          46.4 <span class="text-sm font-normal text-slate-400">dB</span>
+        </div>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex justify-between items-start mb-3">
+          <p class="text-xs text-slate-400">จำนวนเหตุการณ์กรน (ประมาณการ)</p>
+          <div class="p-2 bg-slate-700 text-white rounded-xl">
+            <i data-lucide="alert-circle" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-bold text-slate-900 mb-1">0</div>
+        <p class="text-[11px] text-slate-400">ประมาณการ</p>
+      </div>
+
+    </div>
+
+    <!-- Bottom Controls Area (กล้อง / ท่านอน) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- สตรีมกล้อง -->
+      <div class="bg-[#0d1527] text-white p-8 rounded-2xl shadow-sm flex flex-col items-center justify-center min-h-[220px]">
+        <i data-lucide="camera-off" class="w-10 h-10 text-slate-500 mb-3"></i>
+        <p class="text-sm text-slate-400 mb-4">สถานะกล้อง: ไม่ได้เชื่อมต่อ</p>
+        <button class="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 transition shadow-md">
+          <i data-lucide="camera" class="w-4 h-4"></i>
+          <span>เปิดกล้อง</span>
+        </button>
+      </div>
+
+      <!-- สถานะท่านอน -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+        <div>
+          <h3 class="text-base font-semibold text-slate-800 mb-4 flex items-center space-x-2">
+            <i data-lucide="user" class="w-5 h-5 text-sky-500"></i>
+            <span>ท่านอนปัจจุบัน</span>
+          </h3>
+          <div class="p-4 bg-slate-50 rounded-xl text-center text-slate-500 text-sm">
+            ? ไม่ทราบท่านอน
+          </div>
+        </div>
+        <div class="mt-4">
+          <button class="w-full bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center space-x-2 transition">
+            <i data-lucide="mic" class="w-4 h-4"></i>
+            <span>เปิดไมโครโฟน</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- JavaScript สำหรับสลับเปิด-ปิดแถบ Sidebar -->
   <script>
-    function testVibration() {
-      alert("สั่งสั่นมอเตอร์ทดสอบ 3 วินาทีสำเร็จ!");
+    // โหลดไอคอน
+    lucide.createIcons();
+
+    // ฟังก์ชันสลับเปิด/ปิดแถบเมนู
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
     }
-
-    // สุ่มค่า dB จำลอง
-    setInterval(() => {
-      const mockDB = (58 + Math.random() * 6).toFixed(1);
-      document.getElementById('dbValue').innerText = mockDB;
-      const percentage = Math.min((mockDB / 100) * 100, 100);
-      document.getElementById('dbBar').style.width = percentage + '%';
-    }, 2000);
   </script>
-
 </body>
 </html>
