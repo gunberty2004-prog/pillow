@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Pillow - หมอนสมาร์ทกันไหลตาย</title>
+  
+  <!-- Tailwind CSS CDN & Font Awesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+  <!-- ดึงไฟล์ style.css แยกจากภายนอก -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-custom min-h-screen text-white font-sans">
+
+  <!-- เลเยอร์มืดใสซ้อนทับรูปภาพ -->
+  <div class="min-h-screen bg-slate-950/80 backdrop-blur-[2px] flex flex-col justify-between">
+
+    <!-- Header ด้านบน -->
+    <header class="p-4 bg-slate-900/85 backdrop-blur-md border-b border-slate-800 flex justify-between items-center sticky top-0 z-50">
+      <div class="flex items-center space-x-3">
+        <div class="bg-indigo-600 p-2.5 rounded-xl text-xl shadow-lg">
+          <i class="fa-solid fa-bed-pulse"></i>
+        </div>
+        <div>
+          <h1 class="text-base font-bold tracking-wide">Smart Pillow</h1>
+          <p class="text-[11px] text-slate-300">ระบบเฝ้าระวังและกระตุ้นการเตือน</p>
+        </div>
+      </div>
+      <span class="inline-flex items-center gap-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        ออนไลน์
+      </span>
+    </header>
+
+    <!-- เนื้อหาหลัก (Dashboard) -->
+    <main class="p-5 max-w-md mx-auto w-full flex-grow space-y-4 flex flex-col justify-center">
+      
+      <!-- การ์ดแสดงระดับเสียงสด -->
+      <div class="bg-slate-900/85 border border-slate-700/70 p-6 rounded-2xl w-full shadow-2xl backdrop-blur-md text-center">
+        <p class="text-xs text-slate-400 tracking-wider uppercase font-medium mb-2">ระดับเสียงปัจจุบัน</p>
+        
+        <div class="flex justify-center items-baseline my-3">
+          <span class="text-6xl font-black text-indigo-400 tracking-tight" id="dbValue">60.0</span>
+          <span class="text-lg text-slate-400 font-semibold ml-2">dB</span>
+        </div>
+
+        <!-- แถบวัดความดัง -->
+        <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden border border-slate-700/50 my-3">
+          <div id="dbBar" class="bg-indigo-500 h-full rounded-full transition-all duration-300" style="width: 60%;"></div>
+        </div>
+
+        <div class="flex justify-between text-xs text-slate-400 mt-2">
+          <span>ปกติ (~60 dB)</span>
+          <span class="text-amber-400 font-medium">เกณฑ์เตือน (>80 dB / 1.5s)</span>
+        </div>
+      </div>
+
+      <!-- สวิตช์และปุ่มควบคุม -->
+      <div class="grid grid-cols-2 gap-3">
+        <!-- เปิด-ปิด เฝ้าระวัง -->
+        <div class="bg-slate-900/85 border border-slate-700/70 rounded-xl p-4 flex flex-col justify-between backdrop-blur-md">
+          <div class="flex justify-between items-start mb-2">
+            <i class="fa-solid fa-shield-halved text-2xl text-emerald-400"></i>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" checked class="sr-only peer">
+              <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+            </label>
+          </div>
+          <div>
+            <p class="text-sm font-semibold">เฝ้าระวังอัตโนมัติ</p>
+            <p class="text-[11px] text-slate-400">สั่นเมื่อเสียงเกินเกณฑ์</p>
+          </div>
+        </div>
+
+        <!-- ปุ่มสั่งสั่นทดสอบ -->
+        <button onclick="testVibration()" class="bg-slate-900/85 hover:bg-slate-800/90 active:scale-95 transition border border-slate-700/70 rounded-xl p-4 text-left flex flex-col justify-between backdrop-blur-md">
+          <div class="flex justify-between items-start mb-2">
+            <i class="fa-solid fa-vial text-2xl text-amber-400"></i>
+            <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">ทดสอบ</span>
+          </div>
+          <div>
+            <p class="text-sm font-semibold">สั่งสั่นมอเตอร์</p>
+            <p class="text-[11px] text-slate-400">สั่นทดสอบ 3 วินาที</p>
+          </div>
+        </button>
+      </div>
+
+      <!-- ประวัติการเตือนล่าสุด -->
+      <div class="bg-slate-900/85 border border-slate-700/70 rounded-xl p-4 backdrop-blur-md">
+        <h2 class="text-xs font-bold mb-3 flex items-center gap-2 text-slate-300 uppercase tracking-wider">
+          <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i> ประวัติการเตือนล่าสุด
+        </h2>
+        <ul class="space-y-2 text-xs text-slate-300" id="logList">
+          <li class="flex justify-between items-center bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              เสียงดังเกิน 82.1 dB (1.6s)
+            </span>
+            <span class="text-slate-500 text-[11px]">02:15 น.</span>
+          </li>
+          <li class="flex justify-between items-center bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              ระบบเริ่มทำงาน
+            </span>
+            <span class="text-slate-500 text-[11px]">23:00 น.</span>
+          </li>
+        </ul>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="p-4 text-center text-xs text-slate-400 border-t border-slate-800 bg-slate-900/85 backdrop-blur-md">
+      Smart Anti-Suffocation Pillow Project © 2026
+    </footer>
+
+  </div>
+
+  <script>
+    function testVibration() {
+      alert("สั่งสั่นมอเตอร์ทดสอบ 3 วินาทีสำเร็จ!");
+    }
+
+    // สุ่มค่า dB จำลอง
+    setInterval(() => {
+      const mockDB = (58 + Math.random() * 6).toFixed(1);
+      document.getElementById('dbValue').innerText = mockDB;
+      const percentage = Math.min((mockDB / 100) * 100, 100);
+      document.getElementById('dbBar').style.width = percentage + '%';
+    }, 2000);
+  </script>
+
+</body>
+</html>
