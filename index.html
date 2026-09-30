@@ -1,295 +1,580 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Pillow Dashboard</title>
+  <title>Smart Pillow Care - Night Bedtime Mode</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Lucide Icons (ชุดไอคอน) -->
+  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- ฟอนต์ Kanit -->
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Thai Font: Kanit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
-    body { font-family: 'Kanit', sans-serif; }
+    body {
+      font-family: 'Kanit', sans-serif;
+      background-color: #080c14;
+      color: #e2e8f0;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Glowing Background Backgrounds */
+    .ambient-glow-1 {
+      position: fixed;
+      top: -10%;
+      left: 15%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-glow-2 {
+      position: fixed;
+      bottom: -10%;
+      right: 10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, rgba(0, 0, 0, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Soft pulse keyframes for bedtime audio visualizer */
+    @keyframes ambientPulse {
+      0%, 100% { transform: scale(1); opacity: 0.3; }
+      50% { transform: scale(1.08); opacity: 0.6; }
+    }
+
+    .animate-ambient-pulse {
+      animation: ambientPulse 4s ease-in-out infinite;
+    }
+
+    /* Custom scrollbar for night theme */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #080c14;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 9999px;
+    }
   </style>
 </head>
-<body class="bg-[#fcfaf7] text-slate-800 min-h-screen flex flex-col md:flex-row">
+<body class="min-h-screen flex flex-col md:flex-row relative selection:bg-amber-500/30 selection:text-amber-200">
 
-  <!-- ==================== MOBILE TOP BAR (สำหรับจอมือถือ) ==================== -->
-  <div class="md:hidden bg-[#0d1527] text-white p-4 flex justify-between items-center sticky top-0 z-20 shadow-md">
+  <!-- Ambient Ambient Backgrounds -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- ==================== MOBILE TOP BAR ==================== -->
+  <header class="md:hidden bg-[#0d1527]/90 backdrop-blur-md border-b border-slate-800/80 text-white p-4 flex justify-between items-center sticky top-0 z-30 shadow-lg">
     <div class="flex items-center space-x-3">
-      <div class="w-8 h-8 bg-amber-500 rounded-xl flex items-center justify-center font-bold text-slate-900">🌙</div>
-      <span class="font-bold text-lg">Smart Pillow</span>
+      <div class="w-9 h-9 bg-gradient-to-tr from-amber-500/20 to-indigo-500/20 border border-amber-500/30 rounded-xl flex items-center justify-center text-amber-300 shadow-inner">
+        <i data-lucide="moon" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <span class="font-semibold text-base tracking-wide text-amber-100">Smart Pillow</span>
+        <span class="text-[10px] block text-amber-400/80 -mt-1 font-light">Bedtime Clinic Mode</span>
+      </div>
     </div>
-    <!-- ปุ่มสามขีด (Hamburger Button) -->
-    <button onclick="toggleSidebar()" class="p-2 text-slate-300 hover:text-white rounded-lg focus:outline-none bg-slate-800">
-      <i data-lucide="menu" class="w-6 h-6"></i>
+    
+    <!-- Hamburger Button -->
+    <button onclick="toggleSidebar()" aria-label="Open Menu" class="p-2.5 text-slate-300 hover:text-amber-300 rounded-xl bg-slate-800/80 border border-slate-700/60 transition active:scale-95">
+      <i data-lucide="menu" class="w-5 h-5"></i>
     </button>
-  </div>
+  </header>
 
-  <!-- ฉากหลังดำใสมืดเมื่อเปิดแถบเมนูบนมือถือ -->
-  <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-30 hidden md:hidden transition-opacity"></div>
+  <!-- Backdrop overlay for mobile sidebar -->
+  <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 hidden md:hidden transition-opacity duration-300"></div>
 
-  <!-- ==================== SIDEBAR (เมนูด้านข้างที่เปิด-ปิดได้) ==================== -->
-  <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 bg-[#0d1527] text-slate-300 p-5 flex flex-col justify-between z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out h-screen overflow-y-auto shadow-xl md:shadow-none">
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside id="sidebar" class="fixed md:sticky top-0 left-0 w-72 bg-[#0c1220]/95 backdrop-blur-2xl border-r border-slate-800/80 text-slate-300 p-6 flex flex-col justify-between z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-out h-screen overflow-y-auto shadow-2xl md:shadow-none">
     
     <div>
-      <!-- แถบหัวข้อ Sidebar -->
-      <div class="flex items-center justify-between mb-8">
+      <!-- Sidebar Brand Header -->
+      <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-800/80">
         <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 bg-amber-500 rounded-2xl flex items-center justify-center font-bold text-slate-900 text-xl shadow-lg">🌙</div>
+          <div class="w-10 h-10 bg-gradient-to-br from-amber-400/20 via-indigo-500/20 to-purple-600/20 border border-amber-500/40 rounded-2xl flex items-center justify-center text-amber-300 shadow-lg shadow-amber-500/10">
+            <i data-lucide="moon-star" class="w-5 h-5"></i>
+          </div>
           <div>
-            <h1 class="font-bold text-white text-base leading-tight">Smart Pillow 360</h1>
-            <p class="text-[10px] text-slate-400">ระบบเฝ้าระวังและติดตามความปลอดภัย</p>
+            <h1 class="font-bold text-slate-100 text-base tracking-wide">Smart Pillow Clinic</h1>
+            <p class="text-[11px] text-amber-300/70 font-light">คลินิกและโหมดเฝ้าระวังการนอน</p>
           </div>
         </div>
-        <!-- ปุ่มกากบาทปิดเมนู (เฉพาะมือถือ) -->
-        <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white p-1">
-          <i data-lucide="x" class="w-6 h-6"></i>
+        
+        <!-- Mobile close button -->
+        <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-amber-300 p-1.5 rounded-lg bg-slate-800/50">
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <!-- รายการเมนู -->
-      <nav class="space-y-1 text-sm">
-        <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-indigo-600/30 text-white font-medium border border-indigo-500/30">
-          <i data-lucide="layout-grid" class="w-5 h-5 text-indigo-400"></i>
-          <span>แดชบอร์ด</span>
+      <!-- Navigation Links -->
+      <nav class="space-y-1.5 text-sm">
+        <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-gradient-to-r from-amber-500/15 to-indigo-500/15 text-amber-200 font-medium border border-amber-500/30 shadow-sm">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-amber-400"></i>
+          <span>แดชบอร์ดติดตาม</span>
         </a>
-        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
-          <i data-lucide="activity" class="w-5 h-5"></i>
-          <span>ติดตามสด</span>
+        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800/60 text-slate-400 hover:text-slate-200 transition">
+          <i data-lucide="bed-double" class="w-4 h-4 text-indigo-400"></i>
+          <span>วิเคราะห์การนอนยามค่ำคืน</span>
         </a>
-        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
-          <i data-lucide="camera" class="w-5 h-5"></i>
-          <span>ตั้งค่ากล้อง & ปรับเทียบ</span>
+        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800/60 text-slate-400 hover:text-slate-200 transition">
+          <i data-lucide="shield-alert" class="w-4 h-4 text-emerald-400"></i>
+          <span>เฝ้าระวังการจมหมอน</span>
         </a>
-        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
-          <i data-lucide="cpu" class="w-5 h-5"></i>
-          <span>การเชื่อมต่อฮาร์ดแวร์</span>
+        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800/60 text-slate-400 hover:text-slate-200 transition">
+          <i data-lucide="waves" class="w-4 h-4 text-sky-400"></i>
+          <span>เสียงกล่อมนอน (White Noise)</span>
         </a>
-        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
-          <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
-          <span>วิเคราะห์เสียง & การกรน</span>
+        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800/60 text-slate-400 hover:text-slate-200 transition">
+          <i data-lucide="bell" class="w-4 h-4 text-purple-400"></i>
+          <span>ตั้งค่าการแจ้งเตือน</span>
         </a>
-        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
-          <i data-lucide="history" class="w-5 h-5"></i>
-          <span>ประวัติการนอน</span>
-        </a>
-        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
-          <i data-lucide="heart-pulse" class="w-5 h-5"></i>
-          <span>การศึกษาด้านสุขภาพ</span>
-        </a>
-        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
-          <i data-lucide="bell" class="w-5 h-5"></i>
-          <span>การแจ้งเตือน</span>
-        </a>
-        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
-          <i data-lucide="settings" class="w-5 h-5"></i>
-          <span>ตั้งค่าอุปกรณ์</span>
-        </a>
-        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">
-          <i data-lucide="shield" class="w-5 h-5"></i>
-          <span>ความเป็นส่วนตัว & ความปลอดภัย</span>
+        <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl hover:bg-slate-800/60 text-slate-400 hover:text-slate-200 transition">
+          <i data-lucide="history" class="w-4 h-4 text-amber-400"></i>
+          <span>ประวัติการพักผ่อน</span>
         </a>
       </nav>
     </div>
 
-    <div class="pt-4 border-t border-slate-800 text-xs text-slate-500">
-      Smart Pillow System v1.0
+    <!-- Sidebar Bottom Hardware Status Widget -->
+    <div class="pt-4 mt-6 border-t border-slate-800/80">
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 text-xs space-y-2">
+        <div class="flex items-center justify-between text-slate-300">
+          <span class="flex items-center gap-2">
+            <i data-lucide="bluetooth" class="w-3.5 h-3.5 text-sky-400"></i>
+            <span>Pillow-ESP32</span>
+          </span>
+          <span class="text-[10px] text-emerald-400 font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">เชื่อมต่อ</span>
+        </div>
+        <div class="flex items-center justify-between text-slate-400">
+          <span class="flex items-center gap-2">
+            <i data-lucide="battery-charging" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>แบตเตอรี่หมอน</span>
+          </span>
+          <span class="font-medium text-slate-200">88%</span>
+        </div>
+      </div>
+      <p class="text-[10px] text-slate-500 text-center mt-3 font-light">Bedtime Care UI v2.4 • Night Mode</p>
     </div>
+
   </aside>
 
-  <!-- ==================== MAIN CONTENT AREA (เนื้อหาแดชบอร์ด) ==================== -->
-  <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+  <!-- ==================== MAIN CONTENT AREA ==================== -->
+  <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full z-10 space-y-6">
     
-    <!-- Header & Action Buttons -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <!-- Top Action Header -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-900/60 border border-slate-800/80 p-5 rounded-2xl backdrop-blur-xl shadow-xl">
       <div>
-        <h2 class="text-2xl font-bold text-slate-900">แดชบอร์ดติดตามแบบเรียลไทม์</h2>
-        <div class="flex items-center space-x-2 text-xs text-slate-500 mt-1">
-          <i data-lucide="clock" class="w-4 h-4"></i>
-          <span>00:00:00</span>
-          <span class="text-slate-400">ยังไม่เริ่มเซสชัน</span>
+        <div class="flex items-center space-x-2">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <h2 class="text-xl md:text-2xl font-semibold text-slate-100">ระบบเฝ้าระวังและติดตามการนอนยามค่ำคืน</h2>
         </div>
+        <p class="text-xs text-slate-400 mt-1 font-light">โหมดดูแลการนอนหลับ: ลดแสงสะท้อนถนอมสายตา และประมวลผลระดับเสียงต่อเนื่อง</p>
       </div>
-      <div class="flex items-center space-x-3">
-        <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition">
-          <i data-lucide="play" class="w-4 h-4 fill-current"></i>
-          <span>เริ่มเซสชัน</span>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Live Session Timer Button -->
+        <div class="flex items-center space-x-2 bg-slate-950/80 border border-slate-800 px-3.5 py-2 rounded-xl text-xs">
+          <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
+          <span id="sessionTimer" class="font-mono text-sm text-slate-200 font-medium">06:45:12</span>
+          <span class="text-[10px] text-slate-500">ระยะเวลานอน</span>
+        </div>
+
+        <button id="btnToggleSession" onclick="toggleSession()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-4 py-2 rounded-xl text-xs font-medium flex items-center space-x-2 shadow-lg shadow-emerald-900/20 transition active:scale-95">
+          <i data-lucide="pause" id="sessionIcon" class="w-4 h-4"></i>
+          <span id="sessionBtnText">พักเซสชัน</span>
         </button>
-        <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 shadow-sm transition">
-          <i data-lucide="flask-conical" class="w-4 h-4"></i>
-          <span>เปิดโหมดสาธิต</span>
+
+        <button onclick="toggleBedtimeVisuals()" class="bg-slate-800 hover:bg-slate-700 text-amber-200 border border-amber-500/20 px-3.5 py-2 rounded-xl text-xs font-medium flex items-center space-x-2 transition">
+          <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
+          <span>หรี่แสงไฟหน้าจอ</span>
         </button>
       </div>
     </div>
 
-    <!-- Medical Alert Banner -->
-    <div class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 text-xs text-amber-900 flex items-start space-x-3 mb-6 shadow-sm">
-      <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
-      <p class="leading-relaxed">
-        <strong class="font-semibold">ข้อควรทราบทางการแพทย์:</strong> ระบบนี้เป็นต้นแบบเพื่อการวิจัยและการศึกษา ไม่ใช่อุปกรณ์วินิจฉัยทางการแพทย์ ไม่สามารถวินิจฉัยภาวะหยุดหายใจขณะนอนหรือป้องกัน SIDS ได้ ผลการตรวจวัดเป็นเพียงตัวชี้วัดคัดกรองเบื้องต้น หากมีอาการกังวล โปรดปรึกษาแพทย์ผู้เชี่ยวชาญ
-      </p>
-    </div>
-
-    <!-- Status Grid (สถานะอุปกรณ์) -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
-            <i data-lucide="wifi" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <p class="text-[11px] text-slate-400">สถานะฮาร์ดแวร์</p>
-            <p class="text-sm font-semibold text-slate-800">เชื่อมต่อแล้ว</p>
-          </div>
-        </div>
-        <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
+    <!-- Safety & Medical Disclaimer Banner -->
+    <div class="bg-gradient-to-r from-amber-950/40 via-amber-900/20 to-slate-900/60 border border-amber-500/30 rounded-2xl p-4 text-xs text-amber-200/90 flex items-start space-x-3 shadow-lg backdrop-blur-md">
+      <div class="p-2 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-300 flex-shrink-0 mt-0.5">
+        <i data-lucide="stethoscope" class="w-4 h-4"></i>
       </div>
-
-      <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="p-2.5 bg-slate-100 text-slate-500 rounded-xl">
-            <i data-lucide="camera" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <p class="text-[11px] text-slate-400">สถานะกล้อง</p>
-            <p class="text-sm font-semibold text-slate-800">ไม่ได้เชื่อมต่อ</p>
-          </div>
-        </div>
-        <span class="w-2.5 h-2.5 bg-slate-300 rounded-full"></span>
-      </div>
-
-      <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="p-2.5 bg-slate-100 text-slate-500 rounded-xl">
-            <i data-lucide="mic" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <p class="text-[11px] text-slate-400">Microphone</p>
-            <p class="text-sm font-semibold text-slate-800">ไม่ได้เชื่อมต่อ</p>
-          </div>
-        </div>
-        <span class="w-2.5 h-2.5 bg-slate-300 rounded-full"></span>
-      </div>
-
-      <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="p-2.5 bg-slate-100 text-slate-500 rounded-xl">
-            <i data-lucide="cpu" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <p class="text-[11px] text-slate-400">สถานะมอเตอร์</p>
-            <p class="text-sm font-semibold text-slate-800">พัก</p>
-          </div>
-        </div>
-        <span class="w-2.5 h-2.5 bg-slate-300 rounded-full"></span>
+      <div class="leading-relaxed">
+        <span class="font-medium text-amber-300">ข้อควรทราบทางการแพทย์:</span> ระบบหมอนสมาร์ทนี้ออกแบบเพื่อเป็นอุปกรณ์ช่วยติดตามสรีระและพฤติกรรมการนอนเบื้องต้น ไม่ใช่อุปกรณ์ทางการแพทย์สำหรับวินิจฉัยภาวะหยุดหายใจขณะนอนหลับ (OSA) หรือทดสอบ Sleep Test ในโรงพยาบาล
       </div>
     </div>
 
-    <!-- Metrics Row (การ์ดแสดงค่าเดซิเบล) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <!-- HERO SECTION: Real-time Sound & Sleep Monitor -->
+    <div class="bg-gradient-to-b from-slate-900/80 to-slate-950/90 border border-slate-800 rounded-3xl p-6 md:p-8 relative overflow-hidden shadow-2xl backdrop-blur-xl">
       
-      <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-        <div class="flex justify-between items-start mb-3">
-          <p class="text-xs text-slate-400">ระดับเสียงปัจจุบัน</p>
-          <div class="p-2 bg-sky-500 text-white rounded-xl">
-            <i data-lucide="volume-2" class="w-5 h-5"></i>
+      <!-- Background Ambient Ambient Rings -->
+      <div class="absolute -top-24 -right-24 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+        
+        <!-- Left Column: Ambient Ring & Sound Meter -->
+        <div class="lg:col-span-6 flex flex-col items-center text-center">
+          
+          <!-- Animated Ring Visualizer -->
+          <div class="relative w-56 h-56 md:w-64 md:h-64 flex items-center justify-center my-2">
+            <!-- Pulsing outer ring -->
+            <div id="visualizerOuter" class="absolute inset-0 rounded-full border border-amber-400/20 animate-ambient-pulse bg-gradient-to-tr from-amber-500/5 via-indigo-500/5 to-transparent"></div>
+            <div class="absolute inset-3 rounded-full border border-indigo-500/30 bg-slate-950/80 shadow-2xl backdrop-blur-xl"></div>
+            
+            <!-- Meter Content -->
+            <div class="relative z-10 flex flex-col items-center">
+              <span class="text-[11px] uppercase tracking-widest text-slate-400 font-light mb-1">ระดับเสียงห้องนอน</span>
+              <div class="flex items-baseline space-x-1">
+                <span id="liveDbValue" class="text-5xl md:text-6xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-indigo-200 to-emerald-200 font-mono">
+                  36.5
+                </span>
+                <span class="text-sm font-normal text-slate-400">dB</span>
+              </div>
+              <div id="dbStatusBadge" class="mt-3 inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>เงียบสงบ - เหมาะแก่การนอนหลับ</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-400 font-light max-w-sm mt-2">
+            การวัดเดซิเบลจากไมโครโฟนความไวสูงบนตัวหมอนเพื่อตรวจจับการกรนหรือเสียงรบกวนรอบข้าง
+          </p>
+        </div>
+
+        <!-- Right Column: Sleep Quick Statistics Pills -->
+        <div class="lg:col-span-6 space-y-4">
+          <h3 class="text-sm font-medium text-slate-300 flex items-center space-x-2">
+            <i data-lucide="activity" class="w-4 h-4 text-amber-400"></i>
+            <span>ดัชนีตรวจวัดความปลอดภัยขณะนอน</span>
+          </h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3">
+            
+            <!-- Snore Count -->
+            <div class="bg-slate-900/90 border border-slate-800/90 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+              <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 rounded-xl">
+                  <i data-lucide="mic-off" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <p class="text-[11px] text-slate-400">การกรนคืนนี้</p>
+                  <p class="text-sm font-semibold text-slate-100">0 ครั้ง <span class="text-xs text-slate-500 font-normal">(ไม่พบการกรนสะสม)</span></p>
+                </div>
+              </div>
+              <span class="text-xs text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">ปกติ</span>
+            </div>
+
+            <!-- Sleeping Position -->
+            <div class="bg-slate-900/90 border border-slate-800/90 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+              <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-xl">
+                  <i data-lucide="user-check" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <p class="text-[11px] text-slate-400">ท่านอนปัจจุบัน</p>
+                  <p class="text-sm font-semibold text-slate-100">นอนหงายสบาย <span class="text-xs text-slate-500 font-normal">(Supine)</span></p>
+                </div>
+              </div>
+              <span class="text-xs text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">ท่านอนสมดุล</span>
+            </div>
+
+            <!-- Suffocation Risk Level -->
+            <div class="bg-slate-900/90 border border-slate-800/90 p-4 rounded-2xl flex items-center justify-between shadow-sm">
+              <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 rounded-xl">
+                  <i data-lucide="shield-check" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <p class="text-[11px] text-slate-400">ความเสี่ยงการจมหมอน</p>
+                  <p class="text-sm font-semibold text-slate-100">ระดับต่ำมาก <span class="text-xs text-slate-500 font-normal">(ทางเดินหายใจโล่ง)</span></p>
+                </div>
+              </div>
+              <span class="text-xs text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">ปลอดภัย</span>
+            </div>
+
           </div>
         </div>
-        <div class="text-3xl font-bold text-slate-900 mb-1">
-          46.4 <span class="text-sm font-normal text-slate-400">dB</span>
-        </div>
-        <p class="text-[11px] text-slate-400">ยังไม่ได้ปรับเทียบ</p>
-      </div>
 
-      <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-        <div class="flex justify-between items-start mb-3">
-          <p class="text-xs text-slate-400">เสียงสูงสุดในเซสชัน</p>
-          <div class="p-2 bg-amber-500 text-white rounded-xl">
-            <i data-lucide="activity" class="w-5 h-5"></i>
-          </div>
-        </div>
-        <div class="text-3xl font-bold text-slate-900">
-          46.4 <span class="text-sm font-normal text-slate-400">dB</span>
-        </div>
       </div>
-
-      <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-        <div class="flex justify-between items-start mb-3">
-          <p class="text-xs text-slate-400">ระดับเสียงเฉลี่ย</p>
-          <div class="p-2 bg-emerald-500 text-white rounded-xl">
-            <i data-lucide="volume-2" class="w-5 h-5"></i>
-          </div>
-        </div>
-        <div class="text-3xl font-bold text-slate-900">
-          46.4 <span class="text-sm font-normal text-slate-400">dB</span>
-        </div>
-      </div>
-
-      <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-        <div class="flex justify-between items-start mb-3">
-          <p class="text-xs text-slate-400">จำนวนเหตุการณ์กรน (ประมาณการ)</p>
-          <div class="p-2 bg-slate-700 text-white rounded-xl">
-            <i data-lucide="alert-circle" class="w-5 h-5"></i>
-          </div>
-        </div>
-        <div class="text-3xl font-bold text-slate-900 mb-1">0</div>
-        <p class="text-[11px] text-slate-400">ประมาณการ</p>
-      </div>
-
     </div>
 
-    <!-- Bottom Controls Area (กล้อง / ท่านอน) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- สตรีมกล้อง -->
-      <div class="bg-[#0d1527] text-white p-8 rounded-2xl shadow-sm flex flex-col items-center justify-center min-h-[220px]">
-        <i data-lucide="camera-off" class="w-10 h-10 text-slate-500 mb-3"></i>
-        <p class="text-sm text-slate-400 mb-4">สถานะกล้อง: ไม่ได้เชื่อมต่อ</p>
-        <button class="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2.5 rounded-xl font-medium text-sm flex items-center space-x-2 transition shadow-md">
-          <i data-lucide="camera" class="w-4 h-4"></i>
-          <span>เปิดกล้อง</span>
+    <!-- CONTROLS GRID SECTION -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- CARD 1: Anti-Suffocation Safety Airbag -->
+      <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-5 shadow-xl backdrop-blur-xl flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-2.5">
+              <div class="p-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl">
+                <i data-lucide="wind" class="w-4 h-4"></i>
+              </div>
+              <h3 class="font-medium text-sm text-slate-200">ระบบถุงลมป้องกันการจมหมอน</h3>
+            </div>
+            <span class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse"></span>
+          </div>
+
+          <p class="text-xs text-slate-400 font-light mb-4">
+            ถุงลมจะค่อยๆ ปรับดันองศาหมอนอย่างนุ่มนวลอัตโนมัติ เมื่อเซนเซอร์ตรวจพบการคว่ำหน้าติดหมอนนานเกินกำหนด
+          </p>
+
+          <div class="bg-slate-950/80 border border-slate-800 p-3 rounded-xl space-y-2 mb-4">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-400">โหมดความปลอดภัย:</span>
+              <span class="text-emerald-300 font-medium">เปิดทำงานอัตโนมัติ</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-400">การตอบสนอง:</span>
+              <span class="text-slate-200">ยกนุ่มนวล (Gentle Elevation)</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="triggerPillowTest()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-2.5 rounded-xl text-xs font-medium flex items-center justify-center space-x-2 transition active:scale-95">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-amber-300"></i>
+          <span>ทดสอบการพองถุงลมเบาๆ</span>
         </button>
       </div>
 
-      <!-- สถานะท่านอน -->
-      <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+      <!-- CARD 2: Pillow Height / Airbag Elevation Adjustment -->
+      <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-5 shadow-xl backdrop-blur-xl flex flex-col justify-between">
         <div>
-          <h3 class="text-base font-semibold text-slate-800 mb-4 flex items-center space-x-2">
-            <i data-lucide="user" class="w-5 h-5 text-sky-500"></i>
-            <span>ท่านอนปัจจุบัน</span>
-          </h3>
-          <div class="p-4 bg-slate-50 rounded-xl text-center text-slate-500 text-sm">
-            ? ไม่ทราบท่านอน
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-2.5">
+              <div class="p-2 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded-xl">
+                <i data-lucide="sliders" class="w-4 h-4"></i>
+              </div>
+              <h3 class="font-medium text-sm text-slate-200">ปรับระดับความสูงของหมอน</h3>
+            </div>
+            <span id="currentHeightTag" class="text-[11px] text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-md">ระดับปกติ (8 ซม.)</span>
+          </div>
+
+          <p class="text-xs text-slate-400 font-light mb-4">
+            เลือกความสูงที่รองรับต้นคอได้พอดี เพื่อเปิดทางเดินหายใจและลดโอกาสการนอนกรน
+          </p>
+
+          <!-- Height Preset Buttons -->
+          <div class="grid grid-cols-3 gap-2 mb-4">
+            <button onclick="setPillowHeight('low', 'ระดับต่ำ (6 ซม.)')" class="height-btn bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 py-2 rounded-xl text-xs font-medium transition">
+              6 ซม. (ต่ำ)
+            </button>
+            <button onclick="setPillowHeight('normal', 'ระดับปกติ (8 ซม.)')" class="height-btn bg-amber-500/20 border border-amber-500/40 text-amber-200 py-2 rounded-xl text-xs font-medium transition">
+              8 ซม. (พอดี)
+            </button>
+            <button onclick="setPillowHeight('high', 'ระดับสูง (10 ซม.)')" class="height-btn bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 py-2 rounded-xl text-xs font-medium transition">
+              10 ซม. (สูง)
+            </button>
           </div>
         </div>
-        <div class="mt-4">
-          <button class="w-full bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center space-x-2 transition">
-            <i data-lucide="mic" class="w-4 h-4"></i>
-            <span>เปิดไมโครโฟน</span>
-          </button>
+
+        <div class="text-[11px] text-slate-500 text-center font-light">
+          * ระบบจะค่อยๆ ปรับองศาเพื่อไม่ให้รบกวนการนอน
         </div>
       </div>
+
+      <!-- CARD 3: White Noise & Sleep Sounds Player -->
+      <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-5 shadow-xl backdrop-blur-xl flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-2.5">
+              <div class="p-2 bg-sky-500/10 border border-sky-500/30 text-sky-400 rounded-xl">
+                <i data-lucide="waves" class="w-4 h-4"></i>
+              </div>
+              <h3 class="font-medium text-sm text-slate-200">เสียงกล่อมนอน (White Noise)</h3>
+            </div>
+            <span id="soundStateBadge" class="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full">ปิดอยู่</span>
+          </div>
+
+          <p class="text-xs text-slate-400 font-light mb-3">
+            เปิดเสียงคลื่นหรือเสียงฝนตกความถี่สม่ำเสมอผ่านลำโพงในหมอน เพื่อกลบเสียงรบกวน
+          </p>
+
+          <!-- Sound Options -->
+          <div class="space-y-2 mb-4">
+            <label class="flex items-center justify-between p-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-xs cursor-pointer hover:border-slate-700 transition">
+              <div class="flex items-center space-x-2.5 text-slate-300">
+                <i data-lucide="cloud-rain" class="w-4 h-4 text-sky-400"></i>
+                <span>เสียงฝนตกพรำๆ (Gentle Rain)</span>
+              </div>
+              <input type="radio" name="sleepSound" value="rain" checked class="accent-amber-400">
+            </label>
+            
+            <label class="flex items-center justify-between p-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-xs cursor-pointer hover:border-slate-700 transition">
+              <div class="flex items-center space-x-2.5 text-slate-300">
+                <i data-lucide="waves" class="w-4 h-4 text-teal-400"></i>
+                <span>เสียงคลื่นซัดหาด (Ocean Waves)</span>
+              </div>
+              <input type="radio" name="sleepSound" value="ocean" class="accent-amber-400">
+            </label>
+          </div>
+        </div>
+
+        <button id="btnPlaySound" onclick="toggleSleepSound()" class="w-full bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white py-2.5 rounded-xl text-xs font-medium flex items-center justify-center space-x-2 shadow-lg shadow-sky-900/20 transition active:scale-95">
+          <i data-lucide="play" id="soundIcon" class="w-4 h-4"></i>
+          <span id="soundBtnText">เปิดเสียงกล่อมนอน</span>
+        </button>
+      </div>
+
     </div>
+
+    <!-- Bottom Footer Info -->
+    <footer class="pt-6 border-t border-slate-800/80 text-center text-xs text-slate-500 font-light flex flex-col sm:flex-row justify-between items-center gap-2">
+      <p>Smart Pillow Anti-Suffocation & Sleep Monitoring System © 2026</p>
+      <div class="flex items-center space-x-4 text-[11px] text-slate-400">
+        <span class="hover:text-amber-300 cursor-pointer">เงื่อนไขการใช้งาน</span>
+        <span>•</span>
+        <span class="hover:text-amber-300 cursor-pointer">ความเป็นส่วนตัวของข้อมูลการนอน</span>
+      </div>
+    </footer>
 
   </main>
 
-  <!-- JavaScript สำหรับสลับเปิด-ปิดแถบ Sidebar -->
+  <!-- Notification Toast Box -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-900 border border-amber-500/40 text-amber-200 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl hidden flex items-center space-x-3 text-xs transition-all transform translate-y-2">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastMessage">บันทึกการตั้งค่าแล้ว</span>
+  </div>
+
+  <!-- ==================== JAVASCRIPT ==================== -->
   <script>
-    // โหลดไอคอน
+    // Initialize icons
     lucide.createIcons();
 
-    // ฟังก์ชันสลับเปิด/ปิดแถบเมนู
+    // State variables
+    let isSessionRunning = true;
+    let isSoundPlaying = false;
+    let timerInterval = null;
+    let timerSeconds = 24312; // Start from 06:45:12
+
+    // Toggle Mobile Sidebar Drawer
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebar-overlay');
       sidebar.classList.toggle('-translate-x-full');
       overlay.classList.toggle('hidden');
+    }
+
+    // Simulate Smooth Real-Time dB Noise Fluctuation (33 - 39 dB)
+    setInterval(() => {
+      if (!isSessionRunning) return;
+
+      const liveDbElem = document.getElementById('liveDbValue');
+      const outerRing = document.getElementById('visualizerOuter');
+      
+      // Random subtle noise fluctuation
+      const baseDb = 35.5;
+      const variation = (Math.random() * 4 - 2).toFixed(1);
+      const newDb = (parseFloat(baseDb) + parseFloat(variation)).toFixed(1);
+
+      if (liveDbElem) {
+        liveDbElem.textContent = newDb;
+      }
+
+      // Slightly alter pulse scale depending on noise
+      if (outerRing) {
+        const scaleFactor = 1 + (newDb - 30) / 100;
+        outerRing.style.transform = `scale(${scaleFactor})`;
+      }
+    }, 2500);
+
+    // Live Timer Functionality
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timerSeconds++;
+        const hrs = String(Math.floor(timerSeconds / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0');
+        const secs = String(timerSeconds % 60).padStart(2, '0');
+        
+        const timerElem = document.getElementById('sessionTimer');
+        if (timerElem) {
+          timerElem.textContent = `${hrs}:${mins}:${secs}`;
+        }
+      }, 1000);
+    }
+
+    startTimer();
+
+    // Toggle Session Start / Pause
+    function toggleSession() {
+      isSessionRunning = !isSessionRunning;
+      const btnText = document.getElementById('sessionBtnText');
+      const icon = document.getElementById('sessionIcon');
+
+      if (isSessionRunning) {
+        startTimer();
+        btnText.textContent = "พักเซสชัน";
+        showToast("เริ่มติดตามการนอนต่อ");
+      } else {
+        clearInterval(timerInterval);
+        btnText.textContent = "เริ่มติดตามต่อ";
+        showToast("พักการติดตามการนอนชั่วคราว");
+      }
+    }
+
+    // Set Pillow Height Adjustment
+    function setPillowHeight(level, tagText) {
+      const tag = document.getElementById('currentHeightTag');
+      if (tag) {
+        tag.textContent = tagText;
+      }
+      showToast(`ปรับระดับความสูงหมอนเป็น: ${tagText}`);
+    }
+
+    // Toggle Sleep Sound Playback
+    function toggleSleepSound() {
+      isSoundPlaying = !isSoundPlaying;
+      const btnText = document.getElementById('soundBtnText');
+      const badge = document.getElementById('soundStateBadge');
+
+      if (isSoundPlaying) {
+        btnText.textContent = "ปิดเสียงกล่อมนอน";
+        badge.textContent = "กำลังเล่นเสียง";
+        badge.className = "text-[10px] text-sky-300 bg-sky-500/20 border border-sky-500/30 px-2 py-0.5 rounded-full animate-pulse";
+        showToast("เปิดเสียงกล่อมนอน (White Noise)");
+      } else {
+        btnText.textContent = "เปิดเสียงกล่อมนอน";
+        badge.textContent = "ปิดอยู่";
+        badge.className = "text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full";
+        showToast("ปิดเสียงกล่อมนอนแล้ว");
+      }
+    }
+
+    // Test Cushion Airbag
+    function triggerPillowTest() {
+      showToast("ทดสอบการพองถุงลมระดับนุ่มนวล (2 วินาที)...");
+    }
+
+    // Dim Screen / Bedtime visual toggle
+    function toggleBedtimeVisuals() {
+      document.body.classList.toggle('opacity-75');
+      showToast("ปรับความสว่างหน้าจอสำหรับห้องมืด");
+    }
+
+    // Helper Toast Notification
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMessage');
+      if (toast && toastMsg) {
+        toastMsg.textContent = message;
+        toast.classList.remove('hidden');
+        toast.classList.remove('translate-y-2');
+        
+        setTimeout(() => {
+          toast.classList.add('translate-y-2');
+          toast.classList.add('hidden');
+        }, 3000);
+      }
     }
   </script>
 </body>
