@@ -39,20 +39,20 @@
         <div id="view-search" class="flex-1 flex flex-col">
             
             <!-- Sky Blue Header -->
-            <div class="bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 pt-10 pb-12 px-6 text-white shadow-md relative">
-                <div class="flex justify-between items-center mb-4">
+            <div class="bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 pt-10 pb-8 px-6 text-white shadow-md relative">
+                <div class="flex justify-between items-center mb-2">
                     <h1 class="text-2xl font-bold tracking-tight">Find Pillow</h1>
-                    <button class="hover:opacity-80 transition text-xl"><i class="fa-solid fa-rotate-right"></i></button>
+                    <button onclick="performSearch()" class="hover:opacity-80 transition text-xl"><i class="fa-solid fa-rotate-right"></i></button>
                 </div>
                 <p class="text-xs text-sky-100 font-medium">Search & Connect your Smart Pillow device</p>
             </div>
 
-            <!-- Search Content Card Area -->
-            <div class="-mt-6 px-4 flex-1 space-y-4 pb-12">
+            <!-- Search Content Card Area (ปรับระยะห่างไม่ให้บังตัวอักษร) -->
+            <div class="px-4 mt-4 flex-1 space-y-4 pb-12">
                 
                 <!-- Search Input Card -->
-                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3">
-                    <label class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Search Device ID</label>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-3">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">SEARCH DEVICE ID</label>
                     <div class="flex gap-2">
                         <div class="relative flex-1">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
@@ -71,14 +71,14 @@
                 <!-- Found Devices List Section -->
                 <div class="space-y-2">
                     <div class="flex justify-between items-center px-1">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Available Devices</span>
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">AVAILABLE DEVICES</span>
                         <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
                             <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span> Bluetooth/Wi-Fi Active
                         </span>
                     </div>
 
-                    <!-- Device Item Card (ค้นหาพบ) -->
-                    <div id="device-card-found" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between hover:border-blue-300 transition">
+                    <!-- Device Item Card -->
+                    <div id="device-card-found" class="bg-white rounded-2xl p-4 shadow-sm border border-blue-200 flex items-center justify-between hover:border-blue-400 transition">
                         <div class="flex items-center space-x-3.5">
                             <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-sky-400 text-white flex items-center justify-center text-xl shadow-md shrink-0">
                                 <i class="fa-solid fa-mattress-pillow"></i>
@@ -97,7 +97,7 @@
 
                     <!-- Scanning Graphic Box -->
                     <div id="search-loading" class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 text-center space-y-3 hidden">
-                        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                        <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
                         <p class="text-xs text-slate-500 font-medium">Scanning for nearby Smart Pillows...</p>
                     </div>
                 </div>
@@ -111,7 +111,7 @@
         <div id="view-dashboard" class="flex-1 flex flex-col hidden">
             
             <!-- Sky Blue Header with Back Button -->
-            <div class="bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 pt-10 pb-12 px-6 text-white shadow-md relative">
+            <div class="bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 pt-10 pb-8 px-6 text-white shadow-md relative">
                 <div class="flex justify-between items-center">
                     <button onclick="backToSearch()" class="flex items-center gap-2 hover:opacity-80 transition">
                         <i class="fa-solid fa-arrow-left text-lg"></i>
@@ -125,7 +125,7 @@
             </div>
 
             <!-- Main Content Area -->
-            <div class="-mt-6 px-4 flex-1 space-y-4 pb-24 overflow-y-auto">
+            <div class="px-4 mt-3 flex-1 space-y-4 pb-24 overflow-y-auto">
 
                 <!-- DEVICE CARD -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
@@ -290,7 +290,7 @@
                 foundDeviceName.innerText = "Smart Pillow (" + query.toUpperCase() + ")";
                 foundDeviceId.innerText = "ID: " + query.toUpperCase();
                 deviceCardFound.classList.remove('hidden');
-            }, 600);
+            }, 500);
         }
 
         // Switch to Dashboard
