@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Pillow System</title>
+    <title>Smart Pillow App</title>
     
     <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts (Poppins & Kanit) -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Chart.js (สำหรับวาดกราฟอัตราเสียง) -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- Firebase Web SDK v9 (Compat) -->
@@ -23,149 +23,187 @@
 
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f0f4f9;
+            font-family: 'Inter', sans-serif;
+            background-color: #e2e8f0;
         }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8 flex justify-center items-center">
+<body class="min-h-screen flex justify-center items-center sm:p-4">
 
-    <div class="w-full max-w-lg mx-auto space-y-6">
+    <!-- Mobile Screen Frame Container -->
+    <div class="w-full max-w-md bg-slate-50 min-h-screen sm:min-h-[844px] sm:rounded-[38px] shadow-2xl relative flex flex-col overflow-hidden">
 
         <!-- ========================================================= -->
-        <!-- PAGE 1: CONNECT PAGE (หน้าเชื่อมต่อรหัสหมอน) -->
+        <!-- APP TOP HEADER (Gradient Sky Blue Style) -->
         <!-- ========================================================= -->
-        <div id="connect-view" class="space-y-6">
-            
-            <!-- Banner Header (สไตล์กรอบน้ำเงินเข้มตามรูปภาพ) -->
-            <div class="bg-blue-900 border-4 border-blue-800 rounded-3xl p-6 text-white shadow-xl flex items-center space-x-4">
-                <div class="w-16 h-16 rounded-2xl bg-white text-blue-900 flex items-center justify-center text-3xl shadow-inner border-2 border-blue-400 shrink-0">
-                    <i class="fa-solid fa-mattress-pillow"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold tracking-wide">SMART PILLOW</h1>
-                    <p class="text-xs text-blue-200 uppercase font-medium tracking-wider">Device Connection Hub</p>
+        <div class="bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 pt-10 pb-14 px-6 text-white shadow-md relative">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold tracking-tight">Device</h1>
+                <div class="flex items-center space-x-5 text-xl">
+                    <button class="hover:opacity-80 transition"><i class="fa-solid fa-border-all"></i></button>
+                    <button class="hover:opacity-80 transition"><i class="fa-solid fa-headset"></i></button>
+                    <button onclick="toggleConnectModal()" class="hover:scale-110 transition active:scale-95">
+                        <i class="fa-solid fa-circle-plus text-2xl"></i>
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <!-- Card Input Device ID -->
-            <div class="bg-white border-4 border-blue-700 rounded-3xl p-6 shadow-md space-y-5">
-                <div class="text-center">
-                    <h2 class="text-lg font-bold text-blue-950 uppercase">Connect Your Device</h2>
-                    <p class="text-xs text-gray-500 mt-1">Enter your Smart Pillow Device ID to start monitoring</p>
-                </div>
+        <!-- ========================================================= -->
+        <!-- MAIN CONTENT AREA (Overlapping Card) -->
+        <!-- ========================================================= -->
+        <div class="-mt-8 px-4 flex-1 space-y-4 pb-24 overflow-y-auto">
 
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-blue-900 uppercase tracking-wider block">Device ID</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-blue-700">
-                            <i class="fa-solid fa-key"></i>
+            <!-- DEVICE CARD (Yoosee App Style) -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                
+                <!-- Card Header -->
+                <div class="p-4 flex justify-between items-center border-b border-slate-50">
+                    <div class="flex items-center space-x-2">
+                        <h2 id="device-title" class="font-bold text-slate-800 text-lg">Smart Pillow 01</h2>
+                        <span id="connection-badge" class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Online
                         </span>
-                        <input type="text" id="device-id-input" placeholder="e.g. PILLOW-001" 
-                            class="w-full pl-11 pr-4 py-3 bg-blue-50/50 border-2 border-blue-300 rounded-2xl font-semibold text-blue-950 placeholder-blue-300 focus:outline-none focus:border-blue-700 transition">
+                    </div>
+                    <div class="flex items-center space-x-3 text-slate-400">
+                        <button class="hover:text-blue-600"><i class="fa-solid fa-share-nodes"></i></button>
+                        <button onclick="toggleConnectModal()" class="hover:text-blue-600"><i class="fa-solid fa-gear"></i></button>
                     </div>
                 </div>
 
-                <button onclick="connectPillow()" 
-                    class="w-full py-3.5 bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-2xl shadow-lg border-b-4 border-blue-950 transition active:translate-y-0.5 uppercase tracking-wider flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-plug"></i> Connect Device
-                </button>
+                <!-- Media/Monitor Box (แทนหน้าจอกล้องวงจรปิด) -->
+                <div class="relative bg-slate-900 h-52 flex flex-col justify-between p-4 text-white overflow-hidden">
+                    
+                    <!-- Top Info overlay -->
+                    <div class="flex justify-between items-center text-xs text-slate-300 z-10">
+                        <span class="bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 font-mono">
+                            <i class="fa-solid fa-microphone text-sky-400 mr-1"></i> Sound Rate
+                        </span>
+                        <span class="bg-red-500/80 text-white font-bold px-2 py-0.5 rounded text-[10px] tracking-wider animate-pulse">
+                            ● LIVE
+                        </span>
+                    </div>
+
+                    <!-- Decibel Big Center Value -->
+                    <div class="text-center my-auto z-10">
+                        <div class="flex items-baseline justify-center gap-1">
+                            <span id="db-value" class="text-6xl font-black tracking-tight text-white drop-shadow-md">0.0</span>
+                            <span class="text-lg font-semibold text-sky-400">dB</span>
+                        </div>
+                        <p id="sound-status-text" class="text-xs text-slate-300 mt-1 font-medium">Quiet Environment</p>
+                    </div>
+
+                    <!-- Posture Bar Overlay -->
+                    <div class="z-10 flex justify-between items-center bg-black/50 backdrop-blur-md px-3 py-2 rounded-xl border border-white/10 text-xs">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-bed text-sky-400"></i>
+                            <span id="posture-text" class="font-semibold text-slate-100">Supine (Back)</span>
+                        </div>
+                        <span id="posture-angles" class="text-[10px] text-slate-400 font-mono">P: 0.0° | R: 0.0°</span>
+                    </div>
+
+                    <!-- Ambient Background Gradient inside display box -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-slate-900/20"></div>
+                </div>
+
+                <!-- Action Buttons Row (สไตล์ Cloud Storage / Playback ในรูป) -->
+                <div class="grid grid-cols-2 gap-2 p-3 bg-slate-50/50 border-t border-slate-100">
+                    
+                    <!-- Action Button 1: Vibration Status -->
+                    <div class="bg-white p-3 rounded-xl border border-slate-100 flex items-center space-x-3 shadow-2xs">
+                        <div id="vibe-icon-box" class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-vibrating-alarm text-base"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <div class="flex items-center gap-1">
+                                <span id="vibe-badge" class="px-1.5 py-0.2 bg-slate-100 text-slate-600 text-[9px] font-bold rounded">
+                                    Inactive
+                                </span>
+                            </div>
+                            <p id="vibe-title" class="text-xs font-bold text-slate-700 mt-0.5 truncate">Vibration Off</p>
+                        </div>
+                    </div>
+
+                    <!-- Action Button 2: Posture Tracker -->
+                    <div class="bg-white p-3 rounded-xl border border-slate-100 flex items-center space-x-3 shadow-2xs">
+                        <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-user-doctor text-base"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <span class="px-1.5 py-0.2 bg-indigo-50 text-indigo-600 text-[9px] font-bold rounded">
+                                IMU Sensor
+                            </span>
+                            <p class="text-xs font-bold text-slate-700 mt-0.5 truncate">Posture Track</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Real-Time Sound Graph inside Card -->
+                <div class="p-4 space-y-2 border-t border-slate-100">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px]">Sound Rate Graph</span>
+                        <span class="text-[10px] text-slate-400">Real-time dB Log</span>
+                    </div>
+                    <div class="w-full h-36">
+                        <canvas id="soundChart"></canvas>
+                    </div>
+                </div>
+
             </div>
 
         </div>
 
-
         <!-- ========================================================= -->
-        <!-- PAGE 2: DASHBOARD PAGE (หน้าแสดงข้อมูลเมื่อเชื่อมต่อแล้ว) -->
+        <!-- CONNECT DEVICE MODAL (POPUP) -->
         <!-- ========================================================= -->
-        <div id="dashboard-view" class="space-y-5 hidden">
-            
-            <!-- Top Banner Card -->
-            <div class="bg-blue-900 border-4 border-blue-800 rounded-3xl p-5 text-white shadow-lg flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-blue-700 flex items-center justify-center text-lg border border-blue-400">
-                        <i class="fa-solid fa-wifi animate-pulse"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs text-blue-200 uppercase font-semibold">Connected Device</p>
-                        <h2 id="display-device-id" class="text-base font-bold tracking-wider text-white">PILLOW-001</h2>
-                    </div>
+        <div id="connect-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+            <div class="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800 text-base">Connect Pillow Device</h3>
+                    <button onclick="toggleConnectModal()" class="text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
                 </div>
-                <button onclick="disconnectPillow()" class="px-3 py-1.5 bg-blue-950 hover:bg-red-700 text-blue-200 hover:text-white rounded-xl text-xs font-bold border border-blue-700 transition">
-                    Disconnect
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold text-slate-500">Device ID / Name</label>
+                    <input type="text" id="device-id-input" placeholder="e.g. PILLOW-001" 
+                        class="w-full px-4 py-2.5 bg-slate-100 border border-slate-200 rounded-xl font-semibold text-slate-800 text-sm focus:outline-none focus:border-blue-500">
+                </div>
+                <button onclick="connectPillow()" 
+                    class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md text-sm transition">
+                    Save & Connect
                 </button>
             </div>
+        </div>
 
-            <!-- Grid 1: Decibel Level & Vibration Status -->
-            <div class="grid grid-cols-2 gap-4">
-                
-                <!-- Card 1: Decibel (dB) -->
-                <div class="bg-white border-4 border-blue-700 rounded-3xl p-4 shadow-sm flex flex-col justify-between">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-blue-900 uppercase">Sound Level</span>
-                        <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center text-sm border border-blue-300">
-                            <i class="fa-solid fa-microphone-lines"></i>
-                        </div>
-                    </div>
-                    <div class="my-3">
-                        <div class="flex items-baseline gap-1">
-                            <span id="db-value" class="text-4xl font-extrabold text-blue-950">0.0</span>
-                            <span class="text-xs font-bold text-blue-700">dB</span>
-                        </div>
-                    </div>
-                    <div class="w-full bg-blue-100 rounded-full h-2.5 overflow-hidden border border-blue-300">
-                        <div id="db-bar" class="bg-blue-700 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
-                    </div>
+        <!-- ========================================================= -->
+        <!-- BOTTOM NAVIGATION BAR (Yoosee Bottom Bar Style) -->
+        <!-- ========================================================= -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-2.5 flex justify-around items-center z-40">
+            
+            <!-- Tab 1: Yoosee/Device -->
+            <button class="flex flex-col items-center space-y-1 text-blue-600">
+                <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-mattress-pillow"></i>
                 </div>
+                <span class="text-[10px] font-bold">Pillow</span>
+            </button>
 
-                <!-- Card 2: Vibration Status -->
-                <div class="bg-white border-4 border-blue-700 rounded-3xl p-4 shadow-sm flex flex-col justify-between">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-blue-900 uppercase">Vibration</span>
-                        <div id="vibe-icon-bg" class="w-8 h-8 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center text-sm border border-blue-300">
-                            <i class="fa-solid fa-vibrating-alarm"></i>
-                        </div>
-                    </div>
-                    <div class="my-2">
-                        <p id="vibe-status" class="text-lg font-extrabold text-blue-950 uppercase">OFF</p>
-                        <p id="vibe-subtext" class="text-[10px] text-gray-500 mt-0.5">System Normal</p>
-                    </div>
-                    <div id="vibe-badge" class="px-2 py-0.5 bg-blue-50 text-blue-800 border border-blue-200 rounded-lg text-[10px] font-bold text-center uppercase">
-                        Standby
-                    </div>
-                </div>
+            <!-- Tab 2: Events -->
+            <button class="flex flex-col items-center space-y-1 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-shield-halved text-lg"></i>
+                <span class="text-[10px] font-medium">Events</span>
+            </button>
 
-            </div>
-
-            <!-- Card 3: Sleeping Posture (ท่านอน) -->
-            <div class="bg-white border-4 border-blue-700 rounded-3xl p-5 shadow-sm space-y-3">
-                <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-blue-900 uppercase tracking-wider">Sleeping Posture</span>
-                    <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center text-sm border border-blue-300">
-                        <i class="fa-solid fa-bed"></i>
-                    </div>
+            <!-- Tab 3: Account -->
+            <button class="flex flex-col items-center space-y-1 text-slate-400 hover:text-slate-600">
+                <div class="relative">
+                    <i class="fa-solid fa-user text-lg"></i>
+                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                 </div>
-                <div class="flex items-center space-x-4 bg-blue-50/70 p-3.5 rounded-2xl border-2 border-blue-200">
-                    <div class="w-12 h-12 rounded-xl bg-blue-800 text-white flex items-center justify-center text-xl shrink-0 shadow">
-                        <i id="posture-icon" class="fa-solid fa-user-doctor"></i>
-                    </div>
-                    <div>
-                        <h3 id="posture-text" class="text-base font-bold text-blue-950 uppercase">Supine (Back)</h3>
-                        <p id="posture-angles" class="text-xs text-blue-700 font-medium">Pitch: 0.0° | Roll: 0.0°</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 4: Sound Rate Real-Time Graph (กราฟแสดงอัตราเสียง) -->
-            <div class="bg-white border-4 border-blue-700 rounded-3xl p-5 shadow-sm space-y-3">
-                <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-blue-900 uppercase tracking-wider">Sound Rate Real-Time Graph</span>
-                    <span class="px-2 py-0.5 bg-blue-800 text-white rounded-md text-[10px] font-bold">LIVE</span>
-                </div>
-                <div class="w-full h-48">
-                    <canvas id="soundChart"></canvas>
-                </div>
-            </div>
+                <span class="text-[10px] font-medium">Account</span>
+            </button>
 
         </div>
 
@@ -173,37 +211,27 @@
 
     <!-- JavaScript Section -->
     <script>
-        // -------------------------------------------------------------
-        // 1. Firebase Configuration (เปลี่ยนเป็นของคุณได้เลย)
-        // -------------------------------------------------------------
+        // 1. Firebase Config
         const firebaseConfig = {
             databaseURL: "https://mon-tay2-default-rtdb.asia-southeast1.firebasedatabase.app/"
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // UI State Elements
-        const connectView = document.getElementById('connect-view');
-        const dashboardView = document.getElementById('dashboard-view');
-        const deviceInput = document.getElementById('device-id-input');
-        const displayDeviceId = document.getElementById('display-device-id');
-
-        // Dashboard Data Elements
+        // UI Elements
         const dbValueEl = document.getElementById('db-value');
-        const dbBarEl = document.getElementById('db-bar');
-        const vibeStatusEl = document.getElementById('vibe-status');
-        const vibeSubtextEl = document.getElementById('vibe-subtext');
-        const vibeIconBgEl = document.getElementById('vibe-icon-bg');
-        const vibeBadgeEl = document.getElementById('vibe-badge');
+        const soundStatusText = document.getElementById('sound-status-text');
         const postureTextEl = document.getElementById('posture-text');
         const postureAnglesEl = document.getElementById('posture-angles');
+        const vibeTitle = document.getElementById('vibe-title');
+        const vibeBadge = document.getElementById('vibe-badge');
+        const vibeIconBox = document.getElementById('vibe-icon-box');
+        const deviceTitle = document.getElementById('device-title');
+        const connectModal = document.getElementById('connect-modal');
 
-        let currentFirebaseRef = null;
         let soundChart = null;
 
-        // -------------------------------------------------------------
-        // 2. Chart.js Real-time Graph Setup
-        // -------------------------------------------------------------
+        // 2. Chart.js Setup
         function initChart() {
             const ctx = document.getElementById('soundChart').getContext('2d');
             soundChart = new Chart(ctx, {
@@ -213,23 +241,19 @@
                     datasets: [{
                         label: 'Sound Level (dB)',
                         data: [],
-                        borderColor: '#1e40af', // Deep blue line
-                        backgroundColor: 'rgba(30, 64, 175, 0.1)',
-                        borderWidth: 2.5,
+                        borderColor: '#2563eb', // Blue-600
+                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                        borderWidth: 2,
                         fill: true,
-                        tension: 0.3,
-                        pointRadius: 2
+                        tension: 0.35,
+                        pointRadius: 0
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: {
-                            min: 30,
-                            max: 100,
-                            grid: { color: '#e2e8f0' }
-                        },
+                        y: { min: 30, max: 100, grid: { color: '#f1f5f9' } },
                         x: { display: false }
                     },
                     plugins: { legend: { display: false } }
@@ -237,85 +261,68 @@
             });
         }
 
-        // -------------------------------------------------------------
-        // 3. Functions: Connect & Disconnect
-        // -------------------------------------------------------------
+        // Modal Controls
+        function toggleConnectModal() {
+            connectModal.classList.toggle('hidden');
+        }
+
         function connectPillow() {
-            const deviceId = deviceInput.value.trim() || "PILLOW-001";
-            displayDeviceId.innerText = deviceId.toUpperCase();
+            const inputVal = document.getElementById('device-id-input').value.trim();
+            if(inputVal) deviceTitle.innerText = inputVal;
+            toggleConnectModal();
+        }
 
-            // สลับหน้าแสดงผล
-            connectView.classList.add('hidden');
-            dashboardView.classList.remove('hidden');
-
-            if (!soundChart) initChart();
-
-            // เริ่มอ่านข้อมูลจาก Firebase Realtime Database
-            // Path: /pillows/{deviceId} หรือเปลี่ยนเป็น /pillow ตามต้องการ
-            currentFirebaseRef = database.ref('pillow'); 
-
-            currentFirebaseRef.on('value', (snapshot) => {
+        // 3. Realtime Firebase Listener
+        function listenFirebase() {
+            database.ref('pillow').on('value', (snapshot) => {
                 const data = snapshot.val();
-                if (data) {
-                    updateDashboard(data);
-                }
+                if (data) updateUI(data);
             });
         }
 
-        function disconnectPillow() {
-            if (currentFirebaseRef) {
-                currentFirebaseRef.off(); // ปิดการฟังข้อมูล
-            }
-            dashboardView.classList.add('hidden');
-            connectView.classList.remove('hidden');
-        }
-
-        // -------------------------------------------------------------
-        // 4. Update UI Dashboard Logic
-        // -------------------------------------------------------------
-        function updateDashboard(data) {
-            // 1. Decibel
+        // 4. Update UI
+        function updateUI(data) {
+            // Decibel
             const db = parseFloat(data.db || 0).toFixed(1);
             dbValueEl.innerText = db;
-            dbBarEl.style.width = Math.min((db / 100) * 100, 100) + '%';
-
-            // 2. Vibration Status
-            if (data.isVibrating || db > 50) {
-                vibeStatusEl.innerText = "VIBRATING";
-                vibeStatusEl.className = "text-lg font-extrabold text-red-600 uppercase animate-bounce";
-                vibeSubtextEl.innerText = "Snoring Detected!";
-                vibeIconBgEl.className = "w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-sm border border-red-300";
-                vibeBadgeEl.innerText = "Active";
-                vibeBadgeEl.className = "px-2 py-0.5 bg-red-100 text-red-700 border border-red-300 rounded-lg text-[10px] font-bold text-center uppercase";
+            if (db > 50) {
+                soundStatusText.innerText = "Snoring / Loud Noise Detected";
+                soundStatusText.className = "text-xs text-rose-400 font-semibold mt-1 animate-pulse";
             } else {
-                vibeStatusEl.innerText = "OFF";
-                vibeStatusEl.className = "text-lg font-extrabold text-blue-950 uppercase";
-                vibeSubtextEl.innerText = "System Normal";
-                vibeIconBgEl.className = "w-8 h-8 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center text-sm border border-blue-300";
-                vibeBadgeEl.innerText = "Standby";
-                vibeBadgeEl.className = "px-2 py-0.5 bg-blue-50 text-blue-800 border border-blue-200 rounded-lg text-[10px] font-bold text-center uppercase";
+                soundStatusText.innerText = "Quiet Environment";
+                soundStatusText.className = "text-xs text-slate-300 mt-1 font-medium";
             }
 
-            // 3. Sleeping Posture Translation (TH -> EN)
+            // Vibration Status
+            if (data.isVibrating || db > 50) {
+                vibeTitle.innerText = "Vibrating...";
+                vibeBadge.innerText = "Active";
+                vibeBadge.className = "px-1.5 py-0.2 bg-rose-500 text-white text-[9px] font-bold rounded animate-pulse";
+                vibeIconBox.className = "w-9 h-9 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0";
+            } else {
+                vibeTitle.innerText = "Vibration Off";
+                vibeBadge.innerText = "Inactive";
+                vibeBadge.className = "px-1.5 py-0.2 bg-slate-100 text-slate-600 text-[9px] font-bold rounded";
+                vibeIconBox.className = "w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center shrink-0";
+            }
+
+            // Sleeping Posture
             const pitch = (data.pitch || 0).toFixed(1);
             const roll = (data.roll || 0).toFixed(1);
-            postureAnglesEl.innerText = `Pitch: ${pitch}° | Roll: ${roll}°`;
+            postureAnglesEl.innerText = `P: ${pitch}° | R: ${roll}°`;
 
-            let postureText = "Supine (Back)";
-            if (roll > 20) postureText = "Right Side";
-            else if (roll < -20) postureText = "Left Side";
-            else if (pitch > 20) postureText = "Head Up / Prone";
-            else if (pitch < -20) postureText = "Head Down";
-            
-            postureTextEl.innerText = postureText;
+            let posture = "Supine (Back)";
+            if (roll > 20) posture = "Right Side";
+            else if (roll < -20) posture = "Left Side";
+            else if (pitch > 20) posture = "Head Up / Prone";
+            else if (pitch < -20) posture = "Head Down";
+            postureTextEl.innerText = posture;
 
-            // 4. Update Chart
-            const nowTime = new Date().toLocaleTimeString();
+            // Chart Update
             if (soundChart) {
-                soundChart.data.labels.push(nowTime);
+                const time = new Date().toLocaleTimeString();
+                soundChart.data.labels.push(time);
                 soundChart.data.datasets[0].data.push(db);
-
-                // แสดงผลเฉพาะ 15 จุดล่าสุด
                 if (soundChart.data.labels.length > 15) {
                     soundChart.data.labels.shift();
                     soundChart.data.datasets[0].data.shift();
@@ -323,6 +330,12 @@
                 soundChart.update();
             }
         }
+
+        // Init App
+        window.onload = () => {
+            initChart();
+            listenFirebase();
+        };
     </script>
 </body>
 </html>
