@@ -34,7 +34,7 @@
     <div class="w-full max-w-md bg-slate-50 min-h-screen sm:min-h-[844px] sm:rounded-[38px] shadow-2xl relative flex flex-col overflow-hidden">
 
         <!-- ========================================================= -->
-        <!-- VIEW 1: SEARCH & MULTI-DEVICE MANAGEMENT PAGE (เพิ่มและจัดการหมอน) -->
+        <!-- VIEW 1: SEARCH & MULTI-DEVICE MANAGEMENT PAGE -->
         <!-- ========================================================= -->
         <div id="view-search" class="flex-1 flex flex-col pb-20">
             
@@ -79,7 +79,7 @@
 
                     <!-- Dynamic Device List Container -->
                     <div id="device-list-container" class="space-y-2.5">
-                        <!-- Devices render dynamically via JS -->
+                        <!-- Rendered dynamically -->
                     </div>
                 </div>
 
@@ -99,8 +99,8 @@
                         <span class="text-xs font-bold">Pillow List</span>
                     </button>
                     <h1 class="text-lg font-bold tracking-tight">Live Monitor</h1>
-                    <button onclick="switchTab('pillow')" class="hover:text-rose-200 transition text-sm font-semibold">
-                        Disconnect
+                    <button onclick="openCurrentPillowHistory()" class="bg-white/20 hover:bg-white/30 text-white px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                        <i class="fa-solid fa-clock-rotate-left"></i> History
                     </button>
                 </div>
             </div>
@@ -115,7 +115,7 @@
                         <div class="flex items-center space-x-2">
                             <h2 id="active-device-title" class="font-bold text-slate-800 text-base">Smart Pillow 01</h2>
                             <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Online
+                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Live
                             </span>
                         </div>
                         <div class="flex items-center space-x-3 text-slate-400">
@@ -195,7 +195,7 @@
         </div>
 
         <!-- ========================================================= -->
-        <!-- VIEW 3: SLEEP HISTORY PAGE (ประวัติการนอน) -->
+        <!-- VIEW 3: SLEEP HISTORY PAGE (แยกประวัติรายหมอน) -->
         <!-- ========================================================= -->
         <div id="view-history" class="flex-1 flex flex-col hidden pb-20">
             
@@ -203,24 +203,41 @@
             <div class="bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 pt-10 pb-8 px-6 text-white shadow-md relative">
                 <div class="flex justify-between items-center mb-2">
                     <h1 class="text-2xl font-bold tracking-tight">Sleep History</h1>
-                    <div class="text-xs bg-white/20 px-2.5 py-1 rounded-lg font-mono" id="history-pillow-tag">PILLOW-089</div>
+                    <span class="text-xs bg-white/20 px-2.5 py-1 rounded-lg font-mono font-bold" id="history-pillow-tag">PILLOW-089</span>
                 </div>
-                <p class="text-xs text-sky-100 font-medium">Daily snoring & sleep sound analytics</p>
+                <p class="text-xs text-sky-100 font-medium">Individual sleep analytics per pillow device</p>
             </div>
 
             <!-- Content Area -->
             <div class="px-4 mt-4 flex-1 space-y-4 overflow-y-auto">
                 
-                <!-- Date Picker Select Card -->
-                <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100 flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-600 uppercase flex items-center gap-2">
-                        <i class="fa-solid fa-calendar-day text-blue-600"></i> Select Date
-                    </span>
-                    <select id="history-date-select" onchange="loadHistoryData()" class="bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 py-1.5 px-3 rounded-xl focus:outline-none focus:border-blue-500">
-                        <option value="2026-10-08">Today (Oct 8, 2026)</option>
-                        <option value="2026-10-07">Yesterday (Oct 7, 2026)</option>
-                        <option value="2026-10-06">Oct 6, 2026</option>
-                    </select>
+                <!-- SELECTORS: Device & Date Selector Bar -->
+                <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100 space-y-2.5">
+                    
+                    <!-- 1. Device Selector Dropdown -->
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-600 uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-mattress-pillow text-blue-600"></i> Select Pillow
+                        </span>
+                        <select id="history-device-select" onchange="onHistoryDeviceChange()" class="bg-blue-50 border border-blue-200 text-xs font-bold text-blue-800 py-1.5 px-3 rounded-xl focus:outline-none focus:border-blue-500">
+                            <!-- Populated dynamically via JS -->
+                        </select>
+                    </div>
+
+                    <div class="border-t border-slate-100"></div>
+
+                    <!-- 2. Date Selector Dropdown -->
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-600 uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-day text-blue-600"></i> Select Date
+                        </span>
+                        <select id="history-date-select" onchange="loadHistoryData()" class="bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 py-1.5 px-3 rounded-xl focus:outline-none focus:border-blue-500">
+                            <option value="2026-10-08">Today (Oct 8, 2026)</option>
+                            <option value="2026-10-07">Yesterday (Oct 7, 2026)</option>
+                            <option value="2026-10-06">Oct 6, 2026</option>
+                        </select>
+                    </div>
+
                 </div>
 
                 <!-- Daily Summary Stats Cards (Max / Min Sound) -->
@@ -236,7 +253,7 @@
                             <span id="history-max-db" class="text-3xl font-extrabold text-slate-800">78.5</span>
                             <span class="text-xs font-bold text-rose-500">dB</span>
                         </div>
-                        <p class="text-[10px] text-slate-400">Peak at 02:45 AM</p>
+                        <p id="history-max-time" class="text-[10px] text-slate-400">Peak at 02:45 AM</p>
                     </div>
 
                     <!-- Min dB Card -->
@@ -249,19 +266,19 @@
                             <span id="history-min-db" class="text-3xl font-extrabold text-slate-800">32.1</span>
                             <span class="text-xs font-bold text-emerald-500">dB</span>
                         </div>
-                        <p class="text-[10px] text-slate-400">Deep Sleep Stage</p>
+                        <p class="text-[10px] text-slate-400">Quiet Stage</p>
                     </div>
 
                 </div>
 
-                <!-- Graph: Time vs Decibels (กราฟเทียบเวลากับเดซิเบลประจำวัน) -->
+                <!-- Graph: Time vs Decibels -->
                 <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">DAILY SOUND vs TIME GRAPH</h3>
-                            <p class="text-[10px] text-slate-400">Night time snoring trends (22:00 - 06:00)</p>
+                            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">SOUND vs TIME GRAPH</h3>
+                            <p class="text-[10px] text-slate-400">24h Log for <span id="history-graph-pillow-name" class="font-bold text-blue-600">PILLOW-089</span></p>
                         </div>
-                        <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded">24h Log</span>
+                        <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded">Night Log</span>
                     </div>
                     
                     <div class="w-full h-48">
@@ -273,11 +290,10 @@
         </div>
 
         <!-- ========================================================= -->
-        <!-- BOTTOM NAVIGATION BAR (เปลี่ยน Events -> Sleep History) -->
+        <!-- BOTTOM NAVIGATION BAR -->
         <!-- ========================================================= -->
         <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-2.5 flex justify-around items-center z-40">
             
-            <!-- Tab 1: Pillow List / Live Monitor -->
             <button id="nav-pillow" onclick="switchTab('pillow')" class="flex flex-col items-center space-y-1 text-blue-600">
                 <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs shadow-sm">
                     <i class="fa-solid fa-mattress-pillow"></i>
@@ -285,13 +301,11 @@
                 <span class="text-[10px] font-bold">Pillow</span>
             </button>
 
-            <!-- Tab 2: Sleep History (ประวัติการนอน) -->
             <button id="nav-history" onclick="switchTab('history')" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-blue-600 transition">
                 <i class="fa-solid fa-clock-rotate-left text-lg"></i>
                 <span class="text-[10px] font-semibold">Sleep History</span>
             </button>
 
-            <!-- Tab 3: Account -->
             <button id="nav-account" onclick="switchTab('account')" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-blue-600 transition">
                 <div class="relative">
                     <i class="fa-solid fa-user text-lg"></i>
@@ -316,29 +330,43 @@
         const database = firebase.database();
 
         // -------------------------------------------------------------
-        // 2. State & Saved Devices List
+        // 2. Saved Devices State
         // -------------------------------------------------------------
         let myDevices = [
-            { id: "PILLOW-089", name: "Smart Pillow (PILLOW-089)", active: true },
-            { id: "PILLOW-001", name: "Master Bedroom Pillow", active: false }
+            { id: "PILLOW-089", name: "Smart Pillow (PILLOW-089)" },
+            { id: "PILLOW-001", name: "Master Bedroom Pillow" }
         ];
+
+        // -------------------------------------------------------------
+        // 3. Mock Separate History Data for Each Pillow
+        // -------------------------------------------------------------
+        const pillowHistories = {
+            "PILLOW-089": {
+                "2026-10-08": { max: 78.5, min: 32.1, maxTime: "02:45 AM", chart: [35, 42, 68, 55, 78.5, 48, 62, 38, 32.1] },
+                "2026-10-07": { max: 65.0, min: 30.0, maxTime: "03:10 AM", chart: [30, 38, 50, 65.0, 58, 42, 48, 35, 30.0] },
+                "2026-10-06": { max: 82.3, min: 31.5, maxTime: "01:20 AM", chart: [38, 45, 82.3, 70, 60, 52, 40, 34, 31.5] }
+            },
+            "PILLOW-001": {
+                "2026-10-08": { max: 91.2, min: 36.4, maxTime: "03:30 AM", chart: [40, 52, 75, 88, 91.2, 60, 50, 42, 36.4] },
+                "2026-10-07": { max: 58.4, min: 28.9, maxTime: "04:00 AM", chart: [28.9, 32, 40, 50, 58.4, 45, 38, 32, 30] },
+                "2026-10-06": { max: 74.0, min: 33.0, maxTime: "02:00 AM", chart: [35, 40, 62, 74.0, 68, 50, 42, 36, 33.0] }
+            }
+        };
 
         let activeDeviceId = "PILLOW-089";
         let liveChart = null;
         let historyChart = null;
         let firebaseListenerRef = null;
 
-        // UI Views
+        // UI Elements
         const viewSearch = document.getElementById('view-search');
         const viewDashboard = document.getElementById('view-dashboard');
         const viewHistory = document.getElementById('view-history');
 
-        // Navigation Tabs
         const navPillow = document.getElementById('nav-pillow');
         const navHistory = document.getElementById('nav-history');
         const navAccount = document.getElementById('nav-account');
 
-        // Dashboard UI Elements
         const activeDeviceTitle = document.getElementById('active-device-title');
         const dbValueEl = document.getElementById('db-value');
         const soundStatusText = document.getElementById('sound-status-text');
@@ -348,21 +376,24 @@
         const vibeBadge = document.getElementById('vibe-badge');
         const vibeIconBox = document.getElementById('vibe-icon-box');
 
-        // History Elements
         const historyPillowTag = document.getElementById('history-pillow-tag');
+        const historyGraphPillowName = document.getElementById('history-graph-pillow-name');
         const historyMaxDb = document.getElementById('history-max-db');
         const historyMinDb = document.getElementById('history-min-db');
+        const historyMaxTime = document.getElementById('history-max-time');
+        const historyDeviceSelect = document.getElementById('history-device-select');
 
         // -------------------------------------------------------------
-        // 3. Multi-Pillow Management Functions
+        // 4. Render Pillow List (View 1) & Populate Selectors
         // -------------------------------------------------------------
         function renderDeviceList() {
             const container = document.getElementById('device-list-container');
-            const pillowCount = document.getElementById('pillow-count');
-            pillowCount.innerText = myDevices.length;
+            document.getElementById('pillow-count').innerText = myDevices.length;
             container.innerHTML = '';
+            historyDeviceSelect.innerHTML = '';
 
             myDevices.forEach((dev) => {
+                // Populate Device List Cards
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-2xl p-4 shadow-sm border border-blue-200 flex items-center justify-between hover:border-blue-400 transition";
                 card.innerHTML = `
@@ -375,15 +406,25 @@
                             <p class="text-xs text-slate-400 font-mono">ID: ${dev.id}</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="openDeviceHistory('${dev.id}')" title="View History" 
+                            class="px-3 py-2 bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-600 font-bold text-xs rounded-xl transition active:scale-95">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </button>
                         <button onclick="connectAndMonitor('${dev.id}', '${dev.name}')" 
-                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow transition active:scale-95 flex items-center gap-1.5">
+                            class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow transition active:scale-95 flex items-center gap-1">
                             <span>Connect</span>
                             <i class="fa-solid fa-chevron-right text-[10px]"></i>
                         </button>
                     </div>
                 `;
                 container.appendChild(card);
+
+                // Populate Dropdown in History Tab
+                const opt = document.createElement('option');
+                opt.value = dev.id;
+                opt.innerText = `${dev.name} (${dev.id})`;
+                historyDeviceSelect.appendChild(opt);
             });
         }
 
@@ -391,23 +432,31 @@
             const inputVal = document.getElementById('search-input').value.trim().toUpperCase();
             if (!inputVal) return;
 
-            // Check if already exists
             const exists = myDevices.some(d => d.id === inputVal);
             if (!exists) {
                 myDevices.push({
                     id: inputVal,
-                    name: `Smart Pillow (${inputVal})`,
-                    active: false
+                    name: `Smart Pillow (${inputVal})`
                 });
+
+                // Create default mock history for new device
+                pillowHistories[inputVal] = {
+                    "2026-10-08": { max: 60.0, min: 30.0, maxTime: "02:00 AM", chart: [30, 35, 40, 50, 60, 45, 38, 32, 30] },
+                    "2026-10-07": { max: 55.0, min: 28.0, maxTime: "03:00 AM", chart: [28, 30, 35, 45, 55, 40, 35, 30, 28] },
+                    "2026-10-06": { max: 62.0, min: 32.0, maxTime: "01:00 AM", chart: [32, 38, 42, 52, 62, 48, 40, 35, 32] }
+                };
+
                 renderDeviceList();
             }
             document.getElementById('search-input').value = '';
         }
 
+        // -------------------------------------------------------------
+        // 5. Connect & View Switch Logic
+        // -------------------------------------------------------------
         function connectAndMonitor(id, name) {
             activeDeviceId = id;
             activeDeviceTitle.innerText = name;
-            historyPillowTag.innerText = id;
 
             viewSearch.classList.add('hidden');
             viewHistory.classList.add('hidden');
@@ -417,11 +466,25 @@
             listenFirebaseData();
         }
 
+        function openDeviceHistory(id) {
+            activeDeviceId = id;
+            historyDeviceSelect.value = id;
+            switchTab('history');
+        }
+
+        function openCurrentPillowHistory() {
+            openDeviceHistory(activeDeviceId);
+        }
+
+        function onHistoryDeviceChange() {
+            activeDeviceId = historyDeviceSelect.value;
+            loadHistoryData();
+        }
+
         // -------------------------------------------------------------
-        // 4. Tab Switcher
+        // 6. Tab Navigation Switcher
         // -------------------------------------------------------------
         function switchTab(tab) {
-            // Reset Tab UI
             [navPillow, navHistory, navAccount].forEach(el => {
                 el.className = "flex flex-col items-center space-y-1 text-slate-400 hover:text-blue-600 transition";
             });
@@ -436,16 +499,18 @@
             } else if (tab === 'history') {
                 navHistory.className = "flex flex-col items-center space-y-1 text-blue-600";
                 viewHistory.classList.remove('hidden');
+                
+                historyDeviceSelect.value = activeDeviceId;
                 if (!historyChart) initHistoryChart();
                 loadHistoryData();
             } else {
                 navAccount.className = "flex flex-col items-center space-y-1 text-blue-600";
-                viewSearch.classList.remove('hidden'); // Fallback
+                viewSearch.classList.remove('hidden');
             }
         }
 
         // -------------------------------------------------------------
-        // 5. Chart.js (Live Sound Monitor)
+        // 7. Chart.js Implementation (Live vs History)
         // -------------------------------------------------------------
         function initLiveChart() {
             const ctx = document.getElementById('soundChart').getContext('2d');
@@ -476,9 +541,6 @@
             });
         }
 
-        // -------------------------------------------------------------
-        // 6. Chart.js (Sleep History: Time vs Decibel)
-        // -------------------------------------------------------------
         function initHistoryChart() {
             const ctx = document.getElementById('historyChart').getContext('2d');
             historyChart = new Chart(ctx, {
@@ -487,7 +549,7 @@
                     labels: ['22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00'],
                     datasets: [{
                         label: 'Decibel Level (dB)',
-                        data: [35, 42, 68, 55, 78, 48, 62, 38, 32],
+                        data: [0, 0, 0, 0, 0, 0, 0, 0, 0],
                         borderColor: '#2563eb',
                         backgroundColor: 'rgba(37, 99, 235, 0.12)',
                         borderWidth: 2.5,
@@ -510,27 +572,28 @@
         }
 
         function loadHistoryData() {
+            const selectedDevice = historyDeviceSelect.value || activeDeviceId;
             const selectedDate = document.getElementById('history-date-select').value;
             
-            // Mock dynamic history datasets based on date
-            let mockData = [35, 42, 68, 55, 78.5, 48, 62, 38, 32.1];
-            if (selectedDate === '2026-10-07') mockData = [32, 40, 52, 60, 71.0, 45, 50, 36, 30.5];
-            if (selectedDate === '2026-10-06') mockData = [38, 45, 60, 82.3, 65, 50, 42, 35, 31.0];
+            historyPillowTag.innerText = selectedDevice;
+            historyGraphPillowName.innerText = selectedDevice;
 
-            const maxVal = Math.max(...mockData).toFixed(1);
-            const minVal = Math.min(...mockData).toFixed(1);
+            // Fetch history specific to the selected pillow
+            const devHistory = pillowHistories[selectedDevice] || pillowHistories["PILLOW-089"];
+            const dayData = devHistory[selectedDate] || devHistory["2026-10-08"];
 
-            historyMaxDb.innerText = maxVal;
-            historyMinDb.innerText = minVal;
+            historyMaxDb.innerText = dayData.max.toFixed(1);
+            historyMinDb.innerText = dayData.min.toFixed(1);
+            historyMaxTime.innerText = `Peak at ${dayData.maxTime}`;
 
             if (historyChart) {
-                historyChart.data.datasets[0].data = mockData;
+                historyChart.data.datasets[0].data = dayData.chart;
                 historyChart.update();
             }
         }
 
         // -------------------------------------------------------------
-        // 7. Realtime Firebase Listener
+        // 8. Firebase Live Reader
         // -------------------------------------------------------------
         function listenFirebaseData() {
             if (firebaseListenerRef) firebaseListenerRef.off();
@@ -556,42 +619,4 @@
             if (data.isVibrating || db > 50) {
                 vibeTitle.innerText = "Vibrating...";
                 vibeBadge.innerText = "Active";
-                vibeBadge.className = "px-1.5 py-0.2 bg-rose-500 text-white text-[9px] font-bold rounded animate-pulse";
-                vibeIconBox.className = "w-9 h-9 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0";
-            } else {
-                vibeTitle.innerText = "Vibration Off";
-                vibeBadge.innerText = "Inactive";
-                vibeBadge.className = "px-1.5 py-0.2 bg-slate-100 text-slate-600 text-[9px] font-bold rounded";
-                vibeIconBox.className = "w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center shrink-0";
-            }
-
-            const pitch = (data.pitch || 0).toFixed(1);
-            const roll = (data.roll || 0).toFixed(1);
-            postureAnglesEl.innerText = `P: ${pitch}° | R: ${roll}°`;
-
-            let posture = "Supine (Back)";
-            if (roll > 20) posture = "Right Side";
-            else if (roll < -20) posture = "Left Side";
-            else if (pitch > 20) posture = "Head Up / Prone";
-            else if (pitch < -20) posture = "Head Down";
-            postureTextEl.innerText = posture;
-
-            if (liveChart) {
-                const time = new Date().toLocaleTimeString();
-                liveChart.data.labels.push(time);
-                liveChart.data.datasets[0].data.push(db);
-                if (liveChart.data.labels.length > 15) {
-                    liveChart.data.labels.shift();
-                    liveChart.data.datasets[0].data.shift();
-                }
-                liveChart.update();
-            }
-        }
-
-        // Init Page
-        window.onload = () => {
-            renderDeviceList();
-        };
-    </script>
-</body>
-</html>
+                vibeBadge.className =
