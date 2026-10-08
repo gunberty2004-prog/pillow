@@ -33,6 +33,14 @@
     <!-- Mobile Screen Frame Container -->
     <div class="w-full max-w-md bg-slate-50 min-h-screen sm:min-h-[844px] sm:rounded-[38px] shadow-2xl relative flex flex-col overflow-hidden">
 
+        <!-- Toast Notification Bar (แถบแจ้งเตือนเมื่อเพิ่มสำเร็จ/ซ้ำ) -->
+        <div id="toast-notif" class="absolute top-4 left-4 right-4 z-50 transform -translate-y-20 opacity-0 transition-all duration-300 ease-in-out bg-slate-800 text-white px-4 py-3 rounded-xl shadow-lg flex items-center justify-between text-xs font-semibold">
+            <span id="toast-message" class="flex items-center gap-2">
+                <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+                <span id="toast-text">Device Added Successfully!</span>
+            </span>
+        </div>
+
         <!-- ========================================================= -->
         <!-- VIEW 1: HOME / MY PILLOWS LIST (หน้าแรก - ค้นหาและจัดการหมอน) -->
         <!-- ========================================================= -->
@@ -58,7 +66,7 @@
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </span>
-                            <input type="text" id="search-input" value="PILLOW-089" placeholder="Enter Device ID..." 
+                            <input type="text" id="search-input" value="" placeholder="e.g. PILLOW-090" 
                                 class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 text-sm focus:outline-none focus:border-blue-500 transition">
                         </div>
                         <button onclick="addNewDevice()" 
@@ -381,8 +389,8 @@
             }
         };
 
-        let activePillowId = null; // null = หน้าแรก (ไม่ได้กดเข้าหมอนใบไหน)
-        let activeView = 'search';  // 'search', 'dashboard', 'events', 'history'
+        let activePillowId = null;
+        let activeView = 'search';
 
         let liveChart = null;
         let historyChart = null;
@@ -414,6 +422,27 @@
         const historyMaxDb = document.getElementById('history-max-db');
         const historyMinDb = document.getElementById('history-min-db');
         const historyMaxTime = document.getElementById('history-max-time');
+
+        // Toast Elements
+        const toastNotif = document.getElementById('toast-notif');
+        const toastIcon = document.getElementById('toast-icon');
+        const toastText = document.getElementById('toast-text');
+
+        function showToast(message, isError = false) {
+            toastText.innerText = message;
+            if (isError) {
+                toastIcon.className = "fa-solid fa-circle-exclamation text-rose-400 text-sm";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-sm";
+            }
+            toastNotif.classList.remove('-translate-y-20', 'opacity-0');
+            toastNotif.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toastNotif.classList.remove('translate-y-0', 'opacity-100');
+                toastNotif.classList.add('-translate-y-20', 'opacity-0');
+            }, 3000);
+        }
 
         // -------------------------------------------------------------
         // 3. Render Pillow List (หน้าแรก)
@@ -448,18 +477,26 @@
 
         function addNewDevice() {
             const inputVal = document.getElementById('search-input').value.trim().toUpperCase();
-            if (!inputVal) return;
+            if (!inputVal) {
+                showToast("Please enter a Device ID", true);
+                return;
+            }
 
             const exists = myDevices.some(d => d.id === inputVal);
-            if (!exists) {
-                myDevices.push({ id: inputVal, name: `Smart Pillow (${inputVal})` });
-                pillowHistories[inputVal] = {
-                    "2026-10-08": { max: 60.0, min: 30.0, maxTime: "02:00 AM", chart: [30, 35, 40, 50, 60, 45, 38, 32, 30] },
-                    "2026-10-07": { max: 55.0, min: 28.0, maxTime: "03:00 AM", chart: [28, 30, 35, 45, 55, 40, 35, 30, 28] },
-                    "2026-10-06": { max: 62.0, min: 32.0, maxTime: "01:00 AM", chart: [32, 38, 42, 52, 62, 48, 40, 35, 32] }
-                };
-                renderDeviceList();
+            if (exists) {
+                showToast(`Pillow (${inputVal}) already exists!`, true);
+                return;
             }
+
+            myDevices.push({ id: inputVal, name: `Smart Pillow (${inputVal})` });
+            pillowHistories[inputVal] = {
+                "2026-10-08": { max: 60.0, min: 30.0, maxTime: "02:00 AM", chart: [30, 35, 40, 50, 60, 45, 38, 32, 30] },
+                "2026-10-07": { max: 55.0, min: 28.0, maxTime: "03:00 AM", chart: [28, 30, 35, 45, 55, 40, 35, 30, 28] },
+                "2026-10-06": { max: 62.0, min: 32.0, maxTime: "01:00 AM", chart: [32, 38, 42, 52, 62, 48, 40, 35, 32] }
+            };
+
+            renderDeviceList();
+            showToast(`Added ${inputVal} successfully!`);
             document.getElementById('search-input').value = '';
         }
 
@@ -469,13 +506,11 @@
         function connectToPillow(id, name) {
             activePillowId = id;
             activeDeviceTitle.innerText = name;
-            
-            // สลับหน้าเป็น Dashboard มอนิเตอร์หมอน
             switchView('dashboard');
         }
 
         function disconnectAndGoHome() {
-            activePillowId = null; // เคลียร์สถานะ ออกสู่หน้าแรก
+            activePillowId = null;
             if (firebaseListenerRef) firebaseListenerRef.off();
             switchView('search');
         }
@@ -493,10 +528,8 @@
 
         function handleMiddleTabClick() {
             if (activePillowId) {
-                // ถ้าอยู่ในหมอน ปุ่มกลางคือ History
                 switchView('history');
             } else {
-                // ถ้าอยู่หน้าแรก ปุ่มกลางคือ Events
                 switchView('events');
             }
         }
@@ -504,12 +537,186 @@
         function switchView(targetView) {
             activeView = targetView;
 
-            // Hide all views
             [viewSearch, viewDashboard, viewEvents, viewHistory].forEach(v => v.classList.add('hidden'));
 
-            // Reset Tab Highlights
             [navPillow, navMiddle, navAccount].forEach(el => {
                 el.className = "flex flex-col items-center space-y-1 text-slate-400 hover:text-blue-600 transition";
             });
 
-            // Update Middle Tab Text
+            if (activePillowId) {
+                navMiddleIcon.className = "fa-solid fa-clock-rotate-left text-lg";
+                navMiddleText.innerText = "History";
+            } else {
+                navMiddleIcon.className = "fa-solid fa-shield-halved text-lg";
+                navMiddleText.innerText = "Events";
+            }
+
+            if (targetView === 'search') {
+                viewSearch.classList.remove('hidden');
+                navPillow.className = "flex flex-col items-center space-y-1 text-blue-600";
+            } else if (targetView === 'dashboard') {
+                viewDashboard.classList.remove('hidden');
+                navPillow.className = "flex flex-col items-center space-y-1 text-blue-600";
+                if (!liveChart) initLiveChart();
+                listenFirebaseData();
+            } else if (targetView === 'events') {
+                viewEvents.classList.remove('hidden');
+                navMiddle.className = "flex flex-col items-center space-y-1 text-blue-600";
+            } else if (targetView === 'history') {
+                viewHistory.classList.remove('hidden');
+                navMiddle.className = "flex flex-col items-center space-y-1 text-blue-600";
+                if (!historyChart) initHistoryChart();
+                loadHistoryData();
+            } else {
+                viewSearch.classList.remove('hidden');
+                navAccount.className = "flex flex-col items-center space-y-1 text-blue-600";
+            }
+        }
+
+        // -------------------------------------------------------------
+        // 6. Chart.js (Live vs Sleep History)
+        // -------------------------------------------------------------
+        function initLiveChart() {
+            const ctx = document.getElementById('soundChart').getContext('2d');
+            liveChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Sound Level (dB)',
+                        data: [],
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 30, max: 100, grid: { color: '#f1f5f9' } },
+                        x: { display: false }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function initHistoryChart() {
+            const ctx = document.getElementById('historyChart').getContext('2d');
+            historyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00'],
+                    datasets: [{
+                        label: 'Decibel Level (dB)',
+                        data: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#2563eb',
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 20, max: 100, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function loadHistoryData() {
+            if (!activePillowId) return;
+
+            const selectedDate = document.getElementById('history-date-select').value;
+            historyPillowTag.innerText = activePillowId;
+            historySubtitleName.innerText = activePillowId;
+
+            const devHistory = pillowHistories[activePillowId] || pillowHistories["PILLOW-089"];
+            const dayData = devHistory[selectedDate] || devHistory["2026-10-08"];
+
+            historyMaxDb.innerText = dayData.max.toFixed(1);
+            historyMinDb.innerText = dayData.min.toFixed(1);
+            historyMaxTime.innerText = `Peak at ${dayData.maxTime}`;
+
+            if (historyChart) {
+                historyChart.data.datasets[0].data = dayData.chart;
+                historyChart.update();
+            }
+        }
+
+        // -------------------------------------------------------------
+        // 7. Realtime Firebase Listener
+        // -------------------------------------------------------------
+        function listenFirebaseData() {
+            if (firebaseListenerRef) firebaseListenerRef.off();
+            firebaseListenerRef = database.ref('pillow');
+            
+            firebaseListenerRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) updateDashboardUI(data);
+            });
+        }
+
+        function updateDashboardUI(data) {
+            const db = parseFloat(data.db || 0).toFixed(1);
+            dbValueEl.innerText = db;
+            if (db > 50) {
+                soundStatusText.innerText = "Snoring / Loud Noise Detected";
+                soundStatusText.className = "text-xs text-rose-400 font-semibold mt-1 animate-pulse";
+            } else {
+                soundStatusText.innerText = "Quiet Environment";
+                soundStatusText.className = "text-xs text-slate-300 mt-1 font-medium";
+            }
+
+            if (data.isVibrating || db > 50) {
+                vibeTitle.innerText = "Vibrating...";
+                vibeBadge.innerText = "Active";
+                vibeBadge.className = "px-1.5 py-0.2 bg-rose-500 text-white text-[9px] font-bold rounded animate-pulse";
+                vibeIconBox.className = "w-9 h-9 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0";
+            } else {
+                vibeTitle.innerText = "Vibration Off";
+                vibeBadge.innerText = "Inactive";
+                vibeBadge.className = "px-1.5 py-0.2 bg-slate-100 text-slate-600 text-[9px] font-bold rounded";
+                vibeIconBox.className = "w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center shrink-0";
+            }
+
+            const pitch = (data.pitch || 0).toFixed(1);
+            const roll = (data.roll || 0).toFixed(1);
+            postureAnglesEl.innerText = `P: ${pitch}° | R: ${roll}°`;
+
+            let posture = "Supine (Back)";
+            if (roll > 20) posture = "Right Side";
+            else if (roll < -20) posture = "Left Side";
+            else if (pitch > 20) posture = "Head Up / Prone";
+            else if (pitch < -20) posture = "Head Down";
+            postureTextEl.innerText = posture;
+
+            if (liveChart) {
+                const time = new Date().toLocaleTimeString();
+                liveChart.data.labels.push(time);
+                liveChart.data.datasets[0].data.push(db);
+                if (liveChart.data.labels.length > 15) {
+                    liveChart.data.labels.shift();
+                    liveChart.data.datasets[0].data.shift();
+                }
+                liveChart.update();
+            }
+        }
+
+        window.onload = () => {
+            renderDeviceList();
+        };
+    </script>
+</body>
+</html>
