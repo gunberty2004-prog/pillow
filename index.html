@@ -34,71 +34,52 @@
     <div class="w-full max-w-md bg-slate-50 min-h-screen sm:min-h-[844px] sm:rounded-[38px] shadow-2xl relative flex flex-col overflow-hidden">
 
         <!-- ========================================================= -->
-        <!-- VIEW 1: SEARCH / DEVICE DISCOVERY PAGE (หน้าค้นหาหมอน) -->
+        <!-- VIEW 1: SEARCH & MULTI-DEVICE MANAGEMENT PAGE (เพิ่มและจัดการหมอน) -->
         <!-- ========================================================= -->
-        <div id="view-search" class="flex-1 flex flex-col">
+        <div id="view-search" class="flex-1 flex flex-col pb-20">
             
             <!-- Sky Blue Header -->
             <div class="bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 pt-10 pb-8 px-6 text-white shadow-md relative">
                 <div class="flex justify-between items-center mb-2">
                     <h1 class="text-2xl font-bold tracking-tight">Find Pillow</h1>
-                    <button onclick="performSearch()" class="hover:opacity-80 transition text-xl"><i class="fa-solid fa-rotate-right"></i></button>
+                    <button onclick="renderDeviceList()" class="hover:opacity-80 transition text-xl"><i class="fa-solid fa-rotate-right"></i></button>
                 </div>
-                <p class="text-xs text-sky-100 font-medium">Search & Connect your Smart Pillow device</p>
+                <p class="text-xs text-sky-100 font-medium">Search & Connect your Smart Pillow devices</p>
             </div>
 
-            <!-- Search Content Card Area (ปรับระยะห่างไม่ให้บังตัวอักษร) -->
-            <div class="px-4 mt-4 flex-1 space-y-4 pb-12">
+            <!-- Content Area -->
+            <div class="px-4 mt-4 flex-1 space-y-5 overflow-y-auto">
                 
-                <!-- Search Input Card -->
-                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-3">
-                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">SEARCH DEVICE ID</label>
+                <!-- Search & Add Device Card -->
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">SEARCH / ADD DEVICE ID</label>
                     <div class="flex gap-2">
                         <div class="relative flex-1">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </span>
-                            <input type="text" id="search-input" value="PILLOW-001" placeholder="Enter Device ID..." 
+                            <input type="text" id="search-input" value="PILLOW-089" placeholder="Enter Device ID..." 
                                 class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 text-sm focus:outline-none focus:border-blue-500 transition">
                         </div>
-                        <button onclick="performSearch()" 
-                            class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition shadow-sm active:scale-95">
-                            Search
+                        <button onclick="addNewDevice()" 
+                            class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition shadow-sm active:scale-95 flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Add
                         </button>
                     </div>
                 </div>
 
-                <!-- Found Devices List Section -->
-                <div class="space-y-2">
+                <!-- My Saved Devices List -->
+                <div class="space-y-3">
                     <div class="flex justify-between items-center px-1">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">AVAILABLE DEVICES</span>
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">MY PILLOWS (<span id="pillow-count">2</span>)</span>
                         <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
                             <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span> Bluetooth/Wi-Fi Active
                         </span>
                     </div>
 
-                    <!-- Device Item Card -->
-                    <div id="device-card-found" class="bg-white rounded-2xl p-4 shadow-sm border border-blue-200 flex items-center justify-between hover:border-blue-400 transition">
-                        <div class="flex items-center space-x-3.5">
-                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-sky-400 text-white flex items-center justify-center text-xl shadow-md shrink-0">
-                                <i class="fa-solid fa-mattress-pillow"></i>
-                            </div>
-                            <div>
-                                <h3 id="found-device-name" class="font-bold text-slate-800 text-sm">Smart Pillow 01</h3>
-                                <p id="found-device-id" class="text-xs text-slate-400 font-mono">ID: PILLOW-001</p>
-                            </div>
-                        </div>
-                        <button onclick="connectToDevice()" 
-                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow transition active:scale-95 flex items-center gap-1.5">
-                            <span>Connect</span>
-                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                        </button>
-                    </div>
-
-                    <!-- Scanning Graphic Box -->
-                    <div id="search-loading" class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 text-center space-y-3 hidden">
-                        <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                        <p class="text-xs text-slate-500 font-medium">Scanning for nearby Smart Pillows...</p>
+                    <!-- Dynamic Device List Container -->
+                    <div id="device-list-container" class="space-y-2.5">
+                        <!-- Devices render dynamically via JS -->
                     </div>
                 </div>
 
@@ -106,28 +87,27 @@
         </div>
 
         <!-- ========================================================= -->
-        <!-- VIEW 2: DASHBOARD PAGE (หน้าแสดงข้อมูลมอนิเตอร์) -->
+        <!-- VIEW 2: DASHBOARD PAGE (หน้าแสดงข้อมูลมอนิเตอร์ Real-time) -->
         <!-- ========================================================= -->
-        <div id="view-dashboard" class="flex-1 flex flex-col hidden">
+        <div id="view-dashboard" class="flex-1 flex flex-col hidden pb-20">
             
             <!-- Sky Blue Header with Back Button -->
             <div class="bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 pt-10 pb-8 px-6 text-white shadow-md relative">
                 <div class="flex justify-between items-center">
-                    <button onclick="backToSearch()" class="flex items-center gap-2 hover:opacity-80 transition">
+                    <button onclick="switchTab('pillow')" class="flex items-center gap-2 hover:opacity-80 transition">
                         <i class="fa-solid fa-arrow-left text-lg"></i>
-                        <span class="text-xs font-bold">Search</span>
+                        <span class="text-xs font-bold">Pillow List</span>
                     </button>
-                    <h1 class="text-lg font-bold tracking-tight">Device Monitor</h1>
-                    <button onclick="backToSearch()" class="hover:text-rose-200 transition text-sm font-semibold">
+                    <h1 class="text-lg font-bold tracking-tight">Live Monitor</h1>
+                    <button onclick="switchTab('pillow')" class="hover:text-rose-200 transition text-sm font-semibold">
                         Disconnect
                     </button>
                 </div>
             </div>
 
             <!-- Main Content Area -->
-            <div class="px-4 mt-3 flex-1 space-y-4 pb-24 overflow-y-auto">
+            <div class="px-4 mt-3 flex-1 space-y-4 overflow-y-auto">
 
-                <!-- DEVICE CARD -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     
                     <!-- Card Header -->
@@ -147,7 +127,6 @@
                     <!-- Live Sound Monitor Box (Dark Style) -->
                     <div class="relative bg-slate-900 h-52 flex flex-col justify-between p-4 text-white overflow-hidden">
                         
-                        <!-- Top Info -->
                         <div class="flex justify-between items-center text-xs text-slate-300 z-10">
                             <span class="bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 font-mono">
                                 <i class="fa-solid fa-microphone text-sky-400 mr-1"></i> Sound Rate
@@ -157,7 +136,6 @@
                             </span>
                         </div>
 
-                        <!-- Decibel Big Center Value -->
                         <div class="text-center my-auto z-10">
                             <div class="flex items-baseline justify-center gap-1">
                                 <span id="db-value" class="text-6xl font-black tracking-tight text-white drop-shadow-md">0.0</span>
@@ -166,7 +144,6 @@
                             <p id="sound-status-text" class="text-xs text-slate-300 mt-1 font-medium">Quiet Environment</p>
                         </div>
 
-                        <!-- Posture Bar Overlay -->
                         <div class="z-10 flex justify-between items-center bg-black/50 backdrop-blur-md px-3 py-2 rounded-xl border border-white/10 text-xs">
                             <div class="flex items-center space-x-2">
                                 <i class="fa-solid fa-bed text-sky-400"></i>
@@ -180,39 +157,31 @@
 
                     <!-- Quick Action Cards -->
                     <div class="grid grid-cols-2 gap-2 p-3 bg-slate-50/50 border-t border-slate-100">
-                        
-                        <!-- Vibration Status Card -->
                         <div class="bg-white p-3 rounded-xl border border-slate-100 flex items-center space-x-3">
                             <div id="vibe-icon-box" class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
                                 <i class="fa-solid fa-vibrating-alarm text-base"></i>
                             </div>
                             <div class="overflow-hidden">
-                                <span id="vibe-badge" class="px-1.5 py-0.2 bg-slate-100 text-slate-600 text-[9px] font-bold rounded">
-                                    Inactive
-                                </span>
+                                <span id="vibe-badge" class="px-1.5 py-0.2 bg-slate-100 text-slate-600 text-[9px] font-bold rounded">Inactive</span>
                                 <p id="vibe-title" class="text-xs font-bold text-slate-700 mt-0.5 truncate">Vibration Off</p>
                             </div>
                         </div>
 
-                        <!-- Posture Tracker Card -->
                         <div class="bg-white p-3 rounded-xl border border-slate-100 flex items-center space-x-3">
                             <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
                                 <i class="fa-solid fa-user-doctor text-base"></i>
                             </div>
                             <div class="overflow-hidden">
-                                <span class="px-1.5 py-0.2 bg-indigo-50 text-indigo-600 text-[9px] font-bold rounded">
-                                    IMU Sensor
-                                </span>
+                                <span class="px-1.5 py-0.2 bg-indigo-50 text-indigo-600 text-[9px] font-bold rounded">IMU Sensor</span>
                                 <p class="text-xs font-bold text-slate-700 mt-0.5 truncate">Posture Track</p>
                             </div>
                         </div>
-
                     </div>
 
                     <!-- Real-Time Chart Area -->
                     <div class="p-4 space-y-2 border-t border-slate-100">
                         <div class="flex justify-between items-center text-xs">
-                            <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px]">Sound Rate Graph</span>
+                            <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px]">SOUND RATE GRAPH</span>
                             <span class="text-[10px] text-slate-400">Real-time dB Log</span>
                         </div>
                         <div class="w-full h-36">
@@ -223,24 +192,113 @@
                 </div>
 
             </div>
+        </div>
 
-            <!-- Bottom Nav Bar -->
-            <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-2.5 flex justify-around items-center z-40">
-                <button class="flex flex-col items-center space-y-1 text-blue-600">
-                    <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">
-                        <i class="fa-solid fa-mattress-pillow"></i>
-                    </div>
-                    <span class="text-[10px] font-bold">Pillow</span>
-                </button>
-                <button class="flex flex-col items-center space-y-1 text-slate-400 hover:text-slate-600">
-                    <i class="fa-solid fa-shield-halved text-lg"></i>
-                    <span class="text-[10px] font-medium">Events</span>
-                </button>
-                <button class="flex flex-col items-center space-y-1 text-slate-400 hover:text-slate-600">
-                    <i class="fa-solid fa-user text-lg"></i>
-                    <span class="text-[10px] font-medium">Account</span>
-                </button>
+        <!-- ========================================================= -->
+        <!-- VIEW 3: SLEEP HISTORY PAGE (ประวัติการนอน) -->
+        <!-- ========================================================= -->
+        <div id="view-history" class="flex-1 flex flex-col hidden pb-20">
+            
+            <!-- Sky Blue Header -->
+            <div class="bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 pt-10 pb-8 px-6 text-white shadow-md relative">
+                <div class="flex justify-between items-center mb-2">
+                    <h1 class="text-2xl font-bold tracking-tight">Sleep History</h1>
+                    <div class="text-xs bg-white/20 px-2.5 py-1 rounded-lg font-mono" id="history-pillow-tag">PILLOW-089</div>
+                </div>
+                <p class="text-xs text-sky-100 font-medium">Daily snoring & sleep sound analytics</p>
             </div>
+
+            <!-- Content Area -->
+            <div class="px-4 mt-4 flex-1 space-y-4 overflow-y-auto">
+                
+                <!-- Date Picker Select Card -->
+                <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100 flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-600 uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-day text-blue-600"></i> Select Date
+                    </span>
+                    <select id="history-date-select" onchange="loadHistoryData()" class="bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 py-1.5 px-3 rounded-xl focus:outline-none focus:border-blue-500">
+                        <option value="2026-10-08">Today (Oct 8, 2026)</option>
+                        <option value="2026-10-07">Yesterday (Oct 7, 2026)</option>
+                        <option value="2026-10-06">Oct 6, 2026</option>
+                    </select>
+                </div>
+
+                <!-- Daily Summary Stats Cards (Max / Min Sound) -->
+                <div class="grid grid-cols-2 gap-3">
+                    
+                    <!-- Max dB Card -->
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-1">
+                        <div class="flex justify-between items-center text-xs text-slate-400 font-semibold">
+                            <span>Max Sound (ดังสุด)</span>
+                            <i class="fa-solid fa-arrow-up-right-dots text-rose-500"></i>
+                        </div>
+                        <div class="flex items-baseline gap-1">
+                            <span id="history-max-db" class="text-3xl font-extrabold text-slate-800">78.5</span>
+                            <span class="text-xs font-bold text-rose-500">dB</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400">Peak at 02:45 AM</p>
+                    </div>
+
+                    <!-- Min dB Card -->
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-1">
+                        <div class="flex justify-between items-center text-xs text-slate-400 font-semibold">
+                            <span>Min Sound (เบาสุด)</span>
+                            <i class="fa-solid fa-arrow-down-left-dots text-emerald-500"></i>
+                        </div>
+                        <div class="flex items-baseline gap-1">
+                            <span id="history-min-db" class="text-3xl font-extrabold text-slate-800">32.1</span>
+                            <span class="text-xs font-bold text-emerald-500">dB</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400">Deep Sleep Stage</p>
+                    </div>
+
+                </div>
+
+                <!-- Graph: Time vs Decibels (กราฟเทียบเวลากับเดซิเบลประจำวัน) -->
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">DAILY SOUND vs TIME GRAPH</h3>
+                            <p class="text-[10px] text-slate-400">Night time snoring trends (22:00 - 06:00)</p>
+                        </div>
+                        <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded">24h Log</span>
+                    </div>
+                    
+                    <div class="w-full h-48">
+                        <canvas id="historyChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- BOTTOM NAVIGATION BAR (เปลี่ยน Events -> Sleep History) -->
+        <!-- ========================================================= -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-2.5 flex justify-around items-center z-40">
+            
+            <!-- Tab 1: Pillow List / Live Monitor -->
+            <button id="nav-pillow" onclick="switchTab('pillow')" class="flex flex-col items-center space-y-1 text-blue-600">
+                <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs shadow-sm">
+                    <i class="fa-solid fa-mattress-pillow"></i>
+                </div>
+                <span class="text-[10px] font-bold">Pillow</span>
+            </button>
+
+            <!-- Tab 2: Sleep History (ประวัติการนอน) -->
+            <button id="nav-history" onclick="switchTab('history')" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-blue-600 transition">
+                <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+                <span class="text-[10px] font-semibold">Sleep History</span>
+            </button>
+
+            <!-- Tab 3: Account -->
+            <button id="nav-account" onclick="switchTab('account')" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-blue-600 transition">
+                <div class="relative">
+                    <i class="fa-solid fa-user text-lg"></i>
+                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full"></span>
+                </div>
+                <span class="text-[10px] font-semibold">Account</span>
+            </button>
 
         </div>
 
@@ -248,25 +306,39 @@
 
     <!-- JavaScript Section -->
     <script>
-        // 1. Firebase Config
+        // -------------------------------------------------------------
+        // 1. Firebase Configuration
+        // -------------------------------------------------------------
         const firebaseConfig = {
             databaseURL: "https://mon-tay2-default-rtdb.asia-southeast1.firebasedatabase.app/"
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        // -------------------------------------------------------------
+        // 2. State & Saved Devices List
+        // -------------------------------------------------------------
+        let myDevices = [
+            { id: "PILLOW-089", name: "Smart Pillow (PILLOW-089)", active: true },
+            { id: "PILLOW-001", name: "Master Bedroom Pillow", active: false }
+        ];
+
+        let activeDeviceId = "PILLOW-089";
+        let liveChart = null;
+        let historyChart = null;
+        let firebaseListenerRef = null;
+
         // UI Views
         const viewSearch = document.getElementById('view-search');
         const viewDashboard = document.getElementById('view-dashboard');
+        const viewHistory = document.getElementById('view-history');
 
-        // Search Page Elements
-        const searchInput = document.getElementById('search-input');
-        const foundDeviceName = document.getElementById('found-device-name');
-        const foundDeviceId = document.getElementById('found-device-id');
-        const deviceCardFound = document.getElementById('device-card-found');
-        const searchLoading = document.getElementById('search-loading');
+        // Navigation Tabs
+        const navPillow = document.getElementById('nav-pillow');
+        const navHistory = document.getElementById('nav-history');
+        const navAccount = document.getElementById('nav-account');
 
-        // Dashboard Elements
+        // Dashboard UI Elements
         const activeDeviceTitle = document.getElementById('active-device-title');
         const dbValueEl = document.getElementById('db-value');
         const soundStatusText = document.getElementById('sound-status-text');
@@ -276,46 +348,108 @@
         const vibeBadge = document.getElementById('vibe-badge');
         const vibeIconBox = document.getElementById('vibe-icon-box');
 
-        let soundChart = null;
-        let firebaseListenerRef = null;
+        // History Elements
+        const historyPillowTag = document.getElementById('history-pillow-tag');
+        const historyMaxDb = document.getElementById('history-max-db');
+        const historyMinDb = document.getElementById('history-min-db');
 
-        // Search Action
-        function performSearch() {
-            const query = searchInput.value.trim() || "PILLOW-001";
-            deviceCardFound.classList.add('hidden');
-            searchLoading.classList.remove('hidden');
+        // -------------------------------------------------------------
+        // 3. Multi-Pillow Management Functions
+        // -------------------------------------------------------------
+        function renderDeviceList() {
+            const container = document.getElementById('device-list-container');
+            const pillowCount = document.getElementById('pillow-count');
+            pillowCount.innerText = myDevices.length;
+            container.innerHTML = '';
 
-            setTimeout(() => {
-                searchLoading.classList.add('hidden');
-                foundDeviceName.innerText = "Smart Pillow (" + query.toUpperCase() + ")";
-                foundDeviceId.innerText = "ID: " + query.toUpperCase();
-                deviceCardFound.classList.remove('hidden');
-            }, 500);
+            myDevices.forEach((dev) => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl p-4 shadow-sm border border-blue-200 flex items-center justify-between hover:border-blue-400 transition";
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3.5">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-sky-400 text-white flex items-center justify-center text-xl shadow-md shrink-0">
+                            <i class="fa-solid fa-mattress-pillow"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">${dev.name}</h3>
+                            <p class="text-xs text-slate-400 font-mono">ID: ${dev.id}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="connectAndMonitor('${dev.id}', '${dev.name}')" 
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow transition active:scale-95 flex items-center gap-1.5">
+                            <span>Connect</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
         }
 
-        // Switch to Dashboard
-        function connectToDevice() {
-            const deviceId = searchInput.value.trim() || "PILLOW-001";
-            activeDeviceTitle.innerText = deviceId.toUpperCase();
+        function addNewDevice() {
+            const inputVal = document.getElementById('search-input').value.trim().toUpperCase();
+            if (!inputVal) return;
+
+            // Check if already exists
+            const exists = myDevices.some(d => d.id === inputVal);
+            if (!exists) {
+                myDevices.push({
+                    id: inputVal,
+                    name: `Smart Pillow (${inputVal})`,
+                    active: false
+                });
+                renderDeviceList();
+            }
+            document.getElementById('search-input').value = '';
+        }
+
+        function connectAndMonitor(id, name) {
+            activeDeviceId = id;
+            activeDeviceTitle.innerText = name;
+            historyPillowTag.innerText = id;
 
             viewSearch.classList.add('hidden');
+            viewHistory.classList.add('hidden');
             viewDashboard.classList.remove('hidden');
 
-            if (!soundChart) initChart();
+            if (!liveChart) initLiveChart();
             listenFirebaseData();
         }
 
-        // Switch back to Search
-        function backToSearch() {
-            if (firebaseListenerRef) firebaseListenerRef.off();
+        // -------------------------------------------------------------
+        // 4. Tab Switcher
+        // -------------------------------------------------------------
+        function switchTab(tab) {
+            // Reset Tab UI
+            [navPillow, navHistory, navAccount].forEach(el => {
+                el.className = "flex flex-col items-center space-y-1 text-slate-400 hover:text-blue-600 transition";
+            });
+
+            viewSearch.classList.add('hidden');
             viewDashboard.classList.add('hidden');
-            viewSearch.classList.remove('hidden');
+            viewHistory.classList.add('hidden');
+
+            if (tab === 'pillow') {
+                navPillow.className = "flex flex-col items-center space-y-1 text-blue-600";
+                viewSearch.classList.remove('hidden');
+            } else if (tab === 'history') {
+                navHistory.className = "flex flex-col items-center space-y-1 text-blue-600";
+                viewHistory.classList.remove('hidden');
+                if (!historyChart) initHistoryChart();
+                loadHistoryData();
+            } else {
+                navAccount.className = "flex flex-col items-center space-y-1 text-blue-600";
+                viewSearch.classList.remove('hidden'); // Fallback
+            }
         }
 
-        // Chart.js Setup
-        function initChart() {
+        // -------------------------------------------------------------
+        // 5. Chart.js (Live Sound Monitor)
+        // -------------------------------------------------------------
+        function initLiveChart() {
             const ctx = document.getElementById('soundChart').getContext('2d');
-            soundChart = new Chart(ctx, {
+            liveChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: [],
@@ -342,18 +476,73 @@
             });
         }
 
-        // Realtime Firebase Reader
+        // -------------------------------------------------------------
+        // 6. Chart.js (Sleep History: Time vs Decibel)
+        // -------------------------------------------------------------
+        function initHistoryChart() {
+            const ctx = document.getElementById('historyChart').getContext('2d');
+            historyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00'],
+                    datasets: [{
+                        label: 'Decibel Level (dB)',
+                        data: [35, 42, 68, 55, 78, 48, 62, 38, 32],
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#2563eb',
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 20, max: 100, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function loadHistoryData() {
+            const selectedDate = document.getElementById('history-date-select').value;
+            
+            // Mock dynamic history datasets based on date
+            let mockData = [35, 42, 68, 55, 78.5, 48, 62, 38, 32.1];
+            if (selectedDate === '2026-10-07') mockData = [32, 40, 52, 60, 71.0, 45, 50, 36, 30.5];
+            if (selectedDate === '2026-10-06') mockData = [38, 45, 60, 82.3, 65, 50, 42, 35, 31.0];
+
+            const maxVal = Math.max(...mockData).toFixed(1);
+            const minVal = Math.min(...mockData).toFixed(1);
+
+            historyMaxDb.innerText = maxVal;
+            historyMinDb.innerText = minVal;
+
+            if (historyChart) {
+                historyChart.data.datasets[0].data = mockData;
+                historyChart.update();
+            }
+        }
+
+        // -------------------------------------------------------------
+        // 7. Realtime Firebase Listener
+        // -------------------------------------------------------------
         function listenFirebaseData() {
+            if (firebaseListenerRef) firebaseListenerRef.off();
             firebaseListenerRef = database.ref('pillow');
+            
             firebaseListenerRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) updateDashboardUI(data);
             });
         }
 
-        // Update Dashboard UI
         function updateDashboardUI(data) {
-            // Decibel
             const db = parseFloat(data.db || 0).toFixed(1);
             dbValueEl.innerText = db;
             if (db > 50) {
@@ -364,7 +553,6 @@
                 soundStatusText.className = "text-xs text-slate-300 mt-1 font-medium";
             }
 
-            // Vibration
             if (data.isVibrating || db > 50) {
                 vibeTitle.innerText = "Vibrating...";
                 vibeBadge.innerText = "Active";
@@ -377,7 +565,6 @@
                 vibeIconBox.className = "w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center shrink-0";
             }
 
-            // Posture
             const pitch = (data.pitch || 0).toFixed(1);
             const roll = (data.roll || 0).toFixed(1);
             postureAnglesEl.innerText = `P: ${pitch}° | R: ${roll}°`;
@@ -389,18 +576,22 @@
             else if (pitch < -20) posture = "Head Down";
             postureTextEl.innerText = posture;
 
-            // Chart Update
-            if (soundChart) {
+            if (liveChart) {
                 const time = new Date().toLocaleTimeString();
-                soundChart.data.labels.push(time);
-                soundChart.data.datasets[0].data.push(db);
-                if (soundChart.data.labels.length > 15) {
-                    soundChart.data.labels.shift();
-                    soundChart.data.datasets[0].data.shift();
+                liveChart.data.labels.push(time);
+                liveChart.data.datasets[0].data.push(db);
+                if (liveChart.data.labels.length > 15) {
+                    liveChart.data.labels.shift();
+                    liveChart.data.datasets[0].data.shift();
                 }
-                soundChart.update();
+                liveChart.update();
             }
         }
+
+        // Init Page
+        window.onload = () => {
+            renderDeviceList();
+        };
     </script>
 </body>
 </html>
