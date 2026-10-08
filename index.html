@@ -34,7 +34,7 @@
     <div class="w-full max-w-md bg-slate-50 min-h-screen sm:min-h-[844px] sm:rounded-[38px] shadow-2xl relative flex flex-col overflow-hidden">
 
         <!-- ========================================================= -->
-        <!-- VIEW 1: SEARCH & MULTI-DEVICE MANAGEMENT PAGE -->
+        <!-- VIEW 1: HOME / MY PILLOWS LIST (หน้าแรก - ค้นหาและจัดการหมอน) -->
         <!-- ========================================================= -->
         <div id="view-search" class="flex-1 flex flex-col pb-20">
             
@@ -87,20 +87,20 @@
         </div>
 
         <!-- ========================================================= -->
-        <!-- VIEW 2: DASHBOARD PAGE (หน้าแสดงข้อมูลมอนิเตอร์ Real-time) -->
+        <!-- VIEW 2: LIVE MONITOR DASHBOARD (เมื่อกดเข้าไปในหมอน) -->
         <!-- ========================================================= -->
         <div id="view-dashboard" class="flex-1 flex flex-col hidden pb-20">
             
             <!-- Sky Blue Header with Back Button -->
             <div class="bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 pt-10 pb-8 px-6 text-white shadow-md relative">
                 <div class="flex justify-between items-center">
-                    <button onclick="switchTab('pillow')" class="flex items-center gap-2 hover:opacity-80 transition">
+                    <button onclick="disconnectAndGoHome()" class="flex items-center gap-2 hover:opacity-80 transition">
                         <i class="fa-solid fa-arrow-left text-lg"></i>
                         <span class="text-xs font-bold">Pillow List</span>
                     </button>
                     <h1 class="text-lg font-bold tracking-tight">Live Monitor</h1>
-                    <button onclick="openCurrentPillowHistory()" class="bg-white/20 hover:bg-white/30 text-white px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
-                        <i class="fa-solid fa-clock-rotate-left"></i> History
+                    <button onclick="disconnectAndGoHome()" class="hover:text-rose-200 transition text-sm font-semibold">
+                        Disconnect
                     </button>
                 </div>
             </div>
@@ -195,7 +195,51 @@
         </div>
 
         <!-- ========================================================= -->
-        <!-- VIEW 3: SLEEP HISTORY PAGE (แยกประวัติรายหมอน) -->
+        <!-- VIEW 3: EVENTS PAGE (แสดงเมื่ออยู่หน้าแรกแล้วกด Events) -->
+        <!-- ========================================================= -->
+        <div id="view-events" class="flex-1 flex flex-col hidden pb-20">
+            
+            <!-- Sky Blue Header -->
+            <div class="bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 pt-10 pb-8 px-6 text-white shadow-md relative">
+                <div class="flex justify-between items-center mb-2">
+                    <h1 class="text-2xl font-bold tracking-tight">Events</h1>
+                    <i class="fa-solid fa-bell text-xl"></i>
+                </div>
+                <p class="text-xs text-sky-100 font-medium">System alerts and snoring events history</p>
+            </div>
+
+            <!-- Events List -->
+            <div class="px-4 mt-4 flex-1 space-y-3 overflow-y-auto">
+                <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100 flex items-start space-x-3">
+                    <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 text-base">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xs font-bold text-slate-800">Loud Snoring Triggered</h4>
+                            <span class="text-[10px] text-slate-400">02:45 AM</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">PILLOW-089 detected sound level > 78 dB. Motor vibration activated for 2s.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100 flex items-start space-x-3">
+                    <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 text-base">
+                        <i class="fa-solid fa-wifi"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xs font-bold text-slate-800">Device Connected</h4>
+                            <span class="text-[10px] text-slate-400">Yesterday</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">Master Bedroom Pillow (PILLOW-001) successfully connected to Wi-Fi.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- VIEW 4: SLEEP HISTORY PAGE (แสดงเมื่ออยู่ในหมอนแล้วกด History) -->
         <!-- ========================================================= -->
         <div id="view-history" class="flex-1 flex flex-col hidden pb-20">
             
@@ -205,39 +249,22 @@
                     <h1 class="text-2xl font-bold tracking-tight">Sleep History</h1>
                     <span class="text-xs bg-white/20 px-2.5 py-1 rounded-lg font-mono font-bold" id="history-pillow-tag">PILLOW-089</span>
                 </div>
-                <p class="text-xs text-sky-100 font-medium">Individual sleep analytics per pillow device</p>
+                <p class="text-xs text-sky-100 font-medium">Sleep analytics for <span id="history-subtitle-name" class="font-bold">PILLOW-089</span></p>
             </div>
 
             <!-- Content Area -->
             <div class="px-4 mt-4 flex-1 space-y-4 overflow-y-auto">
                 
-                <!-- SELECTORS: Device & Date Selector Bar -->
-                <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100 space-y-2.5">
-                    
-                    <!-- 1. Device Selector Dropdown -->
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-600 uppercase flex items-center gap-2">
-                            <i class="fa-solid fa-mattress-pillow text-blue-600"></i> Select Pillow
-                        </span>
-                        <select id="history-device-select" onchange="onHistoryDeviceChange()" class="bg-blue-50 border border-blue-200 text-xs font-bold text-blue-800 py-1.5 px-3 rounded-xl focus:outline-none focus:border-blue-500">
-                            <!-- Populated dynamically via JS -->
-                        </select>
-                    </div>
-
-                    <div class="border-t border-slate-100"></div>
-
-                    <!-- 2. Date Selector Dropdown -->
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-600 uppercase flex items-center gap-2">
-                            <i class="fa-solid fa-calendar-day text-blue-600"></i> Select Date
-                        </span>
-                        <select id="history-date-select" onchange="loadHistoryData()" class="bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 py-1.5 px-3 rounded-xl focus:outline-none focus:border-blue-500">
-                            <option value="2026-10-08">Today (Oct 8, 2026)</option>
-                            <option value="2026-10-07">Yesterday (Oct 7, 2026)</option>
-                            <option value="2026-10-06">Oct 6, 2026</option>
-                        </select>
-                    </div>
-
+                <!-- Date Selector Bar -->
+                <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100 flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-600 uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-day text-blue-600"></i> Select Date
+                    </span>
+                    <select id="history-date-select" onchange="loadHistoryData()" class="bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 py-1.5 px-3 rounded-xl focus:outline-none focus:border-blue-500">
+                        <option value="2026-10-08">Today (Oct 8, 2026)</option>
+                        <option value="2026-10-07">Yesterday (Oct 7, 2026)</option>
+                        <option value="2026-10-06">Oct 6, 2026</option>
+                    </select>
                 </div>
 
                 <!-- Daily Summary Stats Cards (Max / Min Sound) -->
@@ -276,9 +303,9 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">SOUND vs TIME GRAPH</h3>
-                            <p class="text-[10px] text-slate-400">24h Log for <span id="history-graph-pillow-name" class="font-bold text-blue-600">PILLOW-089</span></p>
+                            <p class="text-[10px] text-slate-400">Night Log (22:00 - 06:00)</p>
                         </div>
-                        <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded">Night Log</span>
+                        <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded">24h Log</span>
                     </div>
                     
                     <div class="w-full h-48">
@@ -290,23 +317,26 @@
         </div>
 
         <!-- ========================================================= -->
-        <!-- BOTTOM NAVIGATION BAR -->
+        <!-- BOTTOM NAVIGATION BAR (สลับปุ่มกลางแบบ Dynamic) -->
         <!-- ========================================================= -->
         <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-2.5 flex justify-around items-center z-40">
             
-            <button id="nav-pillow" onclick="switchTab('pillow')" class="flex flex-col items-center space-y-1 text-blue-600">
+            <!-- Tab 1: Pillow List / Connected Pillow -->
+            <button id="nav-pillow" onclick="handlePillowTabClick()" class="flex flex-col items-center space-y-1 text-blue-600">
                 <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs shadow-sm">
                     <i class="fa-solid fa-mattress-pillow"></i>
                 </div>
                 <span class="text-[10px] font-bold">Pillow</span>
             </button>
 
-            <button id="nav-history" onclick="switchTab('history')" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-blue-600 transition">
-                <i class="fa-solid fa-clock-rotate-left text-lg"></i>
-                <span class="text-[10px] font-semibold">Sleep History</span>
+            <!-- Tab 2: DYNAMIC MIDDLE TAB (Events หน้าแรก | History เมื่อเข้าในหมอน) -->
+            <button id="nav-middle" onclick="handleMiddleTabClick()" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-blue-600 transition">
+                <i id="nav-middle-icon" class="fa-solid fa-shield-halved text-lg"></i>
+                <span id="nav-middle-text" class="text-[10px] font-semibold">Events</span>
             </button>
 
-            <button id="nav-account" onclick="switchTab('account')" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-blue-600 transition">
+            <!-- Tab 3: Account -->
+            <button id="nav-account" onclick="switchView('account')" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-blue-600 transition">
                 <div class="relative">
                     <i class="fa-solid fa-user text-lg"></i>
                     <span class="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full"></span>
@@ -321,7 +351,7 @@
     <!-- JavaScript Section -->
     <script>
         // -------------------------------------------------------------
-        // 1. Firebase Configuration
+        // 1. Firebase Config
         // -------------------------------------------------------------
         const firebaseConfig = {
             databaseURL: "https://mon-tay2-default-rtdb.asia-southeast1.firebasedatabase.app/"
@@ -337,9 +367,7 @@
             { id: "PILLOW-001", name: "Master Bedroom Pillow" }
         ];
 
-        // -------------------------------------------------------------
-        // 3. Mock Separate History Data for Each Pillow
-        // -------------------------------------------------------------
+        // Individual Sleep History for each Pillow
         const pillowHistories = {
             "PILLOW-089": {
                 "2026-10-08": { max: 78.5, min: 32.1, maxTime: "02:45 AM", chart: [35, 42, 68, 55, 78.5, 48, 62, 38, 32.1] },
@@ -353,7 +381,9 @@
             }
         };
 
-        let activeDeviceId = "PILLOW-089";
+        let activePillowId = null; // null = หน้าแรก (ไม่ได้กดเข้าหมอนใบไหน)
+        let activeView = 'search';  // 'search', 'dashboard', 'events', 'history'
+
         let liveChart = null;
         let historyChart = null;
         let firebaseListenerRef = null;
@@ -361,10 +391,13 @@
         // UI Elements
         const viewSearch = document.getElementById('view-search');
         const viewDashboard = document.getElementById('view-dashboard');
+        const viewEvents = document.getElementById('view-events');
         const viewHistory = document.getElementById('view-history');
 
         const navPillow = document.getElementById('nav-pillow');
-        const navHistory = document.getElementById('nav-history');
+        const navMiddle = document.getElementById('nav-middle');
+        const navMiddleIcon = document.getElementById('nav-middle-icon');
+        const navMiddleText = document.getElementById('nav-middle-text');
         const navAccount = document.getElementById('nav-account');
 
         const activeDeviceTitle = document.getElementById('active-device-title');
@@ -377,23 +410,20 @@
         const vibeIconBox = document.getElementById('vibe-icon-box');
 
         const historyPillowTag = document.getElementById('history-pillow-tag');
-        const historyGraphPillowName = document.getElementById('history-graph-pillow-name');
+        const historySubtitleName = document.getElementById('history-subtitle-name');
         const historyMaxDb = document.getElementById('history-max-db');
         const historyMinDb = document.getElementById('history-min-db');
         const historyMaxTime = document.getElementById('history-max-time');
-        const historyDeviceSelect = document.getElementById('history-device-select');
 
         // -------------------------------------------------------------
-        // 4. Render Pillow List (View 1) & Populate Selectors
+        // 3. Render Pillow List (หน้าแรก)
         // -------------------------------------------------------------
         function renderDeviceList() {
             const container = document.getElementById('device-list-container');
             document.getElementById('pillow-count').innerText = myDevices.length;
             container.innerHTML = '';
-            historyDeviceSelect.innerHTML = '';
 
             myDevices.forEach((dev) => {
-                // Populate Device List Cards
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-2xl p-4 shadow-sm border border-blue-200 flex items-center justify-between hover:border-blue-400 transition";
                 card.innerHTML = `
@@ -406,25 +436,13 @@
                             <p class="text-xs text-slate-400 font-mono">ID: ${dev.id}</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                        <button onclick="openDeviceHistory('${dev.id}')" title="View History" 
-                            class="px-3 py-2 bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-600 font-bold text-xs rounded-xl transition active:scale-95">
-                            <i class="fa-solid fa-clock-rotate-left"></i>
-                        </button>
-                        <button onclick="connectAndMonitor('${dev.id}', '${dev.name}')" 
-                            class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow transition active:scale-95 flex items-center gap-1">
-                            <span>Connect</span>
-                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                        </button>
-                    </div>
+                    <button onclick="connectToPillow('${dev.id}', '${dev.name}')" 
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow transition active:scale-95 flex items-center gap-1.5">
+                        <span>Connect</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </button>
                 `;
                 container.appendChild(card);
-
-                // Populate Dropdown in History Tab
-                const opt = document.createElement('option');
-                opt.value = dev.id;
-                opt.innerText = `${dev.name} (${dev.id})`;
-                historyDeviceSelect.appendChild(opt);
             });
         }
 
@@ -434,189 +452,64 @@
 
             const exists = myDevices.some(d => d.id === inputVal);
             if (!exists) {
-                myDevices.push({
-                    id: inputVal,
-                    name: `Smart Pillow (${inputVal})`
-                });
-
-                // Create default mock history for new device
+                myDevices.push({ id: inputVal, name: `Smart Pillow (${inputVal})` });
                 pillowHistories[inputVal] = {
                     "2026-10-08": { max: 60.0, min: 30.0, maxTime: "02:00 AM", chart: [30, 35, 40, 50, 60, 45, 38, 32, 30] },
                     "2026-10-07": { max: 55.0, min: 28.0, maxTime: "03:00 AM", chart: [28, 30, 35, 45, 55, 40, 35, 30, 28] },
                     "2026-10-06": { max: 62.0, min: 32.0, maxTime: "01:00 AM", chart: [32, 38, 42, 52, 62, 48, 40, 35, 32] }
                 };
-
                 renderDeviceList();
             }
             document.getElementById('search-input').value = '';
         }
 
         // -------------------------------------------------------------
-        // 5. Connect & View Switch Logic
+        // 4. Connect & Disconnect Pillow (เข้า-ออก หมอน)
         // -------------------------------------------------------------
-        function connectAndMonitor(id, name) {
-            activeDeviceId = id;
+        function connectToPillow(id, name) {
+            activePillowId = id;
             activeDeviceTitle.innerText = name;
-
-            viewSearch.classList.add('hidden');
-            viewHistory.classList.add('hidden');
-            viewDashboard.classList.remove('hidden');
-
-            if (!liveChart) initLiveChart();
-            listenFirebaseData();
+            
+            // สลับหน้าเป็น Dashboard มอนิเตอร์หมอน
+            switchView('dashboard');
         }
 
-        function openDeviceHistory(id) {
-            activeDeviceId = id;
-            historyDeviceSelect.value = id;
-            switchTab('history');
-        }
-
-        function openCurrentPillowHistory() {
-            openDeviceHistory(activeDeviceId);
-        }
-
-        function onHistoryDeviceChange() {
-            activeDeviceId = historyDeviceSelect.value;
-            loadHistoryData();
+        function disconnectAndGoHome() {
+            activePillowId = null; // เคลียร์สถานะ ออกสู่หน้าแรก
+            if (firebaseListenerRef) firebaseListenerRef.off();
+            switchView('search');
         }
 
         // -------------------------------------------------------------
-        // 6. Tab Navigation Switcher
+        // 5. Dynamic Navigation Logic (ลอจิกเมนูด้านล่าง)
         // -------------------------------------------------------------
-        function switchTab(tab) {
-            [navPillow, navHistory, navAccount].forEach(el => {
+        function handlePillowTabClick() {
+            if (activePillowId) {
+                switchView('dashboard');
+            } else {
+                switchView('search');
+            }
+        }
+
+        function handleMiddleTabClick() {
+            if (activePillowId) {
+                // ถ้าอยู่ในหมอน ปุ่มกลางคือ History
+                switchView('history');
+            } else {
+                // ถ้าอยู่หน้าแรก ปุ่มกลางคือ Events
+                switchView('events');
+            }
+        }
+
+        function switchView(targetView) {
+            activeView = targetView;
+
+            // Hide all views
+            [viewSearch, viewDashboard, viewEvents, viewHistory].forEach(v => v.classList.add('hidden'));
+
+            // Reset Tab Highlights
+            [navPillow, navMiddle, navAccount].forEach(el => {
                 el.className = "flex flex-col items-center space-y-1 text-slate-400 hover:text-blue-600 transition";
             });
 
-            viewSearch.classList.add('hidden');
-            viewDashboard.classList.add('hidden');
-            viewHistory.classList.add('hidden');
-
-            if (tab === 'pillow') {
-                navPillow.className = "flex flex-col items-center space-y-1 text-blue-600";
-                viewSearch.classList.remove('hidden');
-            } else if (tab === 'history') {
-                navHistory.className = "flex flex-col items-center space-y-1 text-blue-600";
-                viewHistory.classList.remove('hidden');
-                
-                historyDeviceSelect.value = activeDeviceId;
-                if (!historyChart) initHistoryChart();
-                loadHistoryData();
-            } else {
-                navAccount.className = "flex flex-col items-center space-y-1 text-blue-600";
-                viewSearch.classList.remove('hidden');
-            }
-        }
-
-        // -------------------------------------------------------------
-        // 7. Chart.js Implementation (Live vs History)
-        // -------------------------------------------------------------
-        function initLiveChart() {
-            const ctx = document.getElementById('soundChart').getContext('2d');
-            liveChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Sound Level (dB)',
-                        data: [],
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.35,
-                        pointRadius: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { min: 30, max: 100, grid: { color: '#f1f5f9' } },
-                        x: { display: false }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-
-        function initHistoryChart() {
-            const ctx = document.getElementById('historyChart').getContext('2d');
-            historyChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00'],
-                    datasets: [{
-                        label: 'Decibel Level (dB)',
-                        data: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.12)',
-                        borderWidth: 2.5,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#2563eb',
-                        pointRadius: 3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { min: 20, max: 100, grid: { color: '#f1f5f9' } },
-                        x: { grid: { display: false } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-
-        function loadHistoryData() {
-            const selectedDevice = historyDeviceSelect.value || activeDeviceId;
-            const selectedDate = document.getElementById('history-date-select').value;
-            
-            historyPillowTag.innerText = selectedDevice;
-            historyGraphPillowName.innerText = selectedDevice;
-
-            // Fetch history specific to the selected pillow
-            const devHistory = pillowHistories[selectedDevice] || pillowHistories["PILLOW-089"];
-            const dayData = devHistory[selectedDate] || devHistory["2026-10-08"];
-
-            historyMaxDb.innerText = dayData.max.toFixed(1);
-            historyMinDb.innerText = dayData.min.toFixed(1);
-            historyMaxTime.innerText = `Peak at ${dayData.maxTime}`;
-
-            if (historyChart) {
-                historyChart.data.datasets[0].data = dayData.chart;
-                historyChart.update();
-            }
-        }
-
-        // -------------------------------------------------------------
-        // 8. Firebase Live Reader
-        // -------------------------------------------------------------
-        function listenFirebaseData() {
-            if (firebaseListenerRef) firebaseListenerRef.off();
-            firebaseListenerRef = database.ref('pillow');
-            
-            firebaseListenerRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) updateDashboardUI(data);
-            });
-        }
-
-        function updateDashboardUI(data) {
-            const db = parseFloat(data.db || 0).toFixed(1);
-            dbValueEl.innerText = db;
-            if (db > 50) {
-                soundStatusText.innerText = "Snoring / Loud Noise Detected";
-                soundStatusText.className = "text-xs text-rose-400 font-semibold mt-1 animate-pulse";
-            } else {
-                soundStatusText.innerText = "Quiet Environment";
-                soundStatusText.className = "text-xs text-slate-300 mt-1 font-medium";
-            }
-
-            if (data.isVibrating || db > 50) {
-                vibeTitle.innerText = "Vibrating...";
-                vibeBadge.innerText = "Active";
-                vibeBadge.className =
+            // Update Middle Tab Text
