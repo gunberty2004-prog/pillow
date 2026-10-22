@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Pillow App</title>
+    <title>Smart Pillow App with Sleep History</title>
     
     <!-- Google Fonts & Font Awesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -22,215 +22,91 @@
             --bg-light: #f4f7fb;
             --card-white: #ffffff;
             --dark-card: #0c1327;
-            --text-dark: #1e293b;
-            --text-sub: #64748b;
             --primary-blue: #2563eb;
             --accent-green: #10b981;
             --accent-red: #ef4444;
-            --border-radius: 24px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Prompt', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: #cbd5e1; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px; }
         
-        /* Mobile Frame Container */
         .app-container {
-            width: 100%;
-            max-width: 420px;
-            height: 880px;
-            max-height: 95vh;
-            background: var(--bg-light);
-            border-radius: 36px;
+            width: 100%; max-width: 420px; height: 880px; max-height: 95vh;
+            background: var(--bg-light); border-radius: 36px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
-            position: relative;
-            display: flex;
-            flex-direction: column;
+            overflow: hidden; position: relative; display: flex; flex-direction: column;
         }
 
         .hidden { display: none !important; }
 
         /* Bottom Nav Bar */
         .bottom-nav {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            height: 70px;
-            background: #ffffff;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-bottom-left-radius: 36px;
-            border-bottom-right-radius: 36px;
-            z-index: 100;
+            position: absolute; bottom: 0; left: 0; right: 0; height: 70px;
+            background: #ffffff; border-top: 1px solid #e2e8f0;
+            display: flex; justify-content: space-around; align-items: center;
+            border-bottom-left-radius: 36px; border-bottom-right-radius: 36px; z-index: 100;
         }
         .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #94a3b8;
-            cursor: pointer;
-            text-decoration: none;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            font-size: 0.7rem; font-weight: 600; color: #94a3b8; cursor: pointer;
         }
         .nav-item.active { color: var(--primary-blue); }
         .nav-item i { font-size: 1.2rem; }
 
-        /* Screen Content Scrollable Area */
-        .screen-content {
-            flex: 1;
-            overflow-y: auto;
-            padding-bottom: 80px;
-        }
+        .screen-content { flex: 1; overflow-y: auto; padding-bottom: 80px; }
 
         /* Blue Top Header */
         .header-blue {
-            background: var(--blue-gradient);
-            padding: 30px 24px 24px 24px;
-            color: white;
-            border-bottom-left-radius: 28px;
-            border-bottom-right-radius: 28px;
-            position: relative;
+            background: var(--blue-gradient); padding: 30px 24px 20px 24px; color: white;
+            border-bottom-left-radius: 28px; border-bottom-right-radius: 28px;
         }
         .header-top { display: flex; justify-content: space-between; align-items: center; }
-        .header-title { font-size: 1.8rem; font-weight: 800; }
-        .header-icons { display: flex; gap: 12px; align-items: center; }
-        .icon-btn {
-            width: 36px; height: 36px; background: rgba(255,255,255,0.2);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            color: white; cursor: pointer; font-size: 0.95rem;
-        }
+        .header-title { font-size: 1.7rem; font-weight: 800; }
 
-        /* =========================================================
-           1. FIND PILLOW SCREEN (หน้าเชื่อมต่ออุปกรณ์)
-           ========================================================= */
+        /* 1. FIND PILLOW SCREEN */
         .search-card {
-            background: var(--card-white);
-            margin: 20px 20px 0 20px;
-            padding: 20px;
-            border-radius: 20px;
+            background: var(--card-white); margin: 20px; padding: 20px; border-radius: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         }
-        .search-label { font-size: 0.75rem; font-weight: 700; color: #64748b; letter-spacing: 0.5px; margin-bottom: 10px; }
-        .search-box { display: flex; gap: 10px; }
-        .search-input-wrapper {
-            flex: 1; background: #f8fafc; border: 1px solid #e2e8f0;
-            border-radius: 14px; padding: 10px 14px; display: flex; align-items: center; gap: 10px;
-        }
-        .search-input-wrapper input {
-            border: none; background: transparent; outline: none;
-            width: 100%; font-size: 0.95rem; font-weight: 700; color: #1e293b;
-        }
-        .btn-blue {
-            background: #2563eb; color: white; border: none;
-            padding: 0 20px; border-radius: 14px; font-weight: 700; font-size: 0.9rem;
-            cursor: pointer; transition: background 0.2s;
-        }
-
-        .section-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin: 20px 24px 12px 24px;
-        }
-        .section-title { font-size: 0.8rem; font-weight: 800; color: #64748b; letter-spacing: 0.5px; }
-        .active-status { font-size: 0.75rem; font-weight: 700; color: #10b981; display: flex; align-items: center; gap: 6px; }
-        .active-status::before { content: ''; width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
-
         .device-card {
-            background: var(--card-white);
-            margin: 0 20px 12px 20px;
-            padding: 16px;
-            border-radius: 20px;
-            border: 1px solid #e2e8f0;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .device-card-left { display: flex; align-items: center; gap: 14px; }
-        .device-icon-box {
-            width: 48px; height: 48px; background: #3b82f6; color: white;
-            border-radius: 14px; display: flex; align-items: center; justify-content: center;
-            font-size: 1.3rem;
-        }
-        .device-name { font-size: 0.95rem; font-weight: 700; color: #0f172a; }
-        .device-id-text { font-size: 0.75rem; font-weight: 600; color: #94a3b8; font-family: monospace; }
-        .btn-connect-pill {
-            background: #2563eb; color: white; border: none;
-            padding: 10px 18px; border-radius: 20px; font-weight: 700; font-size: 0.85rem;
-            cursor: pointer; display: flex; align-items: center; gap: 6px;
+            background: var(--card-white); margin: 0 20px 12px 20px; padding: 16px;
+            border-radius: 20px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;
         }
 
-        /* =========================================================
-           2. DEVICE DASHBOARD SCREEN (หน้าแสดงผลหลัก)
-           ========================================================= */
-        .dash-header-bar {
-            margin: 16px 20px 12px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .dash-device-title { font-size: 1.25rem; font-weight: 800; color: #0f172a; }
-        .online-pill {
-            background: #dcfce7; color: #15803d; padding: 3px 10px;
-            border-radius: 12px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;
-        }
-        .online-pill::before { content: ''; width: 6px; height: 6px; background: #16a34a; border-radius: 50%; }
-
-        /* Big Dark Metric Card */
+        /* 2. DASHBOARD SCREEN */
         .dark-card {
-            background: var(--dark-card);
-            margin: 0 20px 16px 20px;
-            padding: 20px;
-            border-radius: 24px;
-            color: white;
-            box-shadow: 0 10px 25px rgba(12, 19, 39, 0.2);
+            background: var(--dark-card); margin: 0 20px 16px 20px; padding: 20px;
+            border-radius: 24px; color: white; box-shadow: 0 10px 25px rgba(12, 19, 39, 0.2);
         }
-        .dark-card-top { display: flex; justify-content: space-between; align-items: center; }
-        .pill-tag {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
-            padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
-            display: flex; align-items: center; gap: 6px;
-        }
-        .live-tag {
-            background: #ef4444; color: white; padding: 3px 10px;
-            border-radius: 12px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px;
-        }
-
-        .db-main-display {
-            text-align: center; margin: 20px 0;
-        }
-        .db-number { font-size: 3.8rem; font-weight: 800; line-height: 1; letter-spacing: -1px; }
-        .db-unit { font-size: 1.2rem; font-weight: 700; color: #38bdf8; margin-left: 4px; }
-        .db-subtext { font-size: 0.85rem; color: #94a3b8; font-weight: 500; margin-top: 6px; }
-
-        .dark-card-bottom {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px; padding: 12px 16px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .posture-main { font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .angle-text { font-size: 0.75rem; font-weight: 600; color: #94a3b8; font-family: monospace; }
-
-        /* Two Small Status Cards */
+        .db-number { font-size: 3.8rem; font-weight: 800; text-align: center; line-height: 1; }
         .twin-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 20px 20px 20px; }
-        .mini-card {
-            background: var(--card-white); padding: 16px; border-radius: 20px;
-            display: flex; align-items: center; gap: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #f1f5f9;
-        }
-        .mini-icon {
-            width: 42px; height: 42px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
-        }
-        .mini-tag { font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 6px; display: inline-block; margin-bottom: 2px; }
-        .mini-val { font-size: 0.85rem; font-weight: 800; color: #0f172a; }
+        .mini-card { background: var(--card-white); padding: 16px; border-radius: 20px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px; }
 
-        /* Graph Box */
-        .graph-box {
-            background: var(--card-white); margin: 0 20px 20px 20px;
-            padding: 20px; border-radius: 24px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #f1f5f9;
+        /* 3. HISTORY STYLES */
+        .history-section { margin: 16px 20px; }
+        .date-card {
+            background: var(--card-white); border-radius: 20px; margin-bottom: 14px;
+            border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
-        .graph-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .graph-title { font-size: 0.8rem; font-weight: 800; color: #475569; letter-spacing: 0.5px; }
-        .graph-sub { font-size: 0.75rem; font-weight: 600; color: #94a3b8; }
+        .date-header {
+            padding: 16px 20px; background: #ffffff; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; font-weight: 700; color: #0f172a;
+        }
+        .session-box {
+            background: #f8fafc; padding: 16px; border-top: 1px solid #f1f5f9;
+        }
+        .sound-minmax-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;
+        }
+        .minmax-badge {
+            padding: 10px; border-radius: 12px; text-align: center;
+        }
+        .min-badge { background: #e0f2fe; color: #0369a1; }
+        .max-badge { background: #fee2e2; color: #b91c1c; }
+        .posture-log-item {
+            display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #cbd5e1;
+            font-size: 0.8rem; color: #334155;
+        }
     </style>
 </head>
 <body>
@@ -238,139 +114,133 @@
     <div class="app-container">
 
         <!-- =========================================================
-             1. FIND PILLOW SCREEN (หน้าเลือก/เชื่อมต่อหมอน)
+             PAGE 1: FIND PILLOW SCREEN (หน้าเชื่อมต่ออุปกรณ์)
              ========================================================= -->
         <div id="screenConnect" class="screen-content">
             <div class="header-blue">
                 <div class="header-top">
                     <div class="header-title">Find Pillow</div>
-                    <div class="icon-btn" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i></div>
                 </div>
                 <p style="font-size: 0.825rem; opacity: 0.9; margin-top: 6px;">Search & Connect your Smart Pillow device</p>
             </div>
 
-            <!-- Search / Add Box -->
             <div class="search-card">
-                <div class="search-label">SEARCH / ADD DEVICE ID</div>
-                <div class="search-box">
-                    <div class="search-input-wrapper">
-                        <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8;"></i>
-                        <input type="text" id="inputDeviceId" value="PILLOW-089" placeholder="Enter Device ID">
-                    </div>
-                    <button class="btn-blue" onclick="addAndConnectDevice()">+ Add</button>
+                <div style="font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 8px;">SEARCH DEVICE ID</div>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="inputDeviceId" value="PILLOW-089" style="flex:1; padding: 10px; border-radius: 12px; border: 1px solid #cbd5e1; font-weight:700;">
+                    <button onclick="addAndConnectDevice()" style="background:#2563eb; color:white; border:none; padding:0 16px; border-radius:12px; font-weight:700;">Connect</button>
                 </div>
             </div>
 
-            <!-- Available Devices List -->
-            <div class="section-header">
-                <div class="section-title">MY PILLOWS (1)</div>
-                <div class="active-status">Bluetooth/Wi-Fi Active</div>
-            </div>
-
+            <div style="margin: 0 20px 10px 20px; font-size: 0.8rem; font-weight:800; color:#64748b;">MY PILLOWS</div>
             <div class="device-card">
-                <div class="device-card-left">
-                    <div class="device-icon-box"><i class="fa-solid fa-bed"></i></div>
-                    <div>
-                        <div class="device-name">Smart Pillow (PILLOW-089)</div>
-                        <div class="device-id-text">ID: PILLOW-089</div>
-                    </div>
+                <div>
+                    <div style="font-size: 0.95rem; font-weight: 700;">Smart Pillow (PILLOW-089)</div>
+                    <div style="font-size: 0.75rem; color: #94a3b8;">ID: PILLOW-089</div>
                 </div>
-                <button class="btn-connect-pill" onclick="connectSpecificDevice('PILLOW-089')">
-                    Connect <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i>
-                </button>
+                <button onclick="connectSpecificDevice('PILLOW-089')" style="background:#2563eb; color:white; border:none; padding:8px 16px; border-radius:16px; font-weight:700;">Connect ></button>
             </div>
         </div>
-
 
         <!-- =========================================================
-             2. DEVICE DASHBOARD SCREEN (หน้าแดชบอร์ดหลัก)
+             PAGE 2: DASHBOARD SCREEN (หน้าแสดงผลเรียลไทม์)
              ========================================================= -->
         <div id="screenDashboard" class="screen-content hidden">
-            <!-- Header Top Bar -->
-            <div class="header-blue" style="padding-bottom: 20px;">
+            <div class="header-blue">
                 <div class="header-top">
                     <div class="header-title">Device</div>
-                    <div class="header-icons">
-                        <div class="icon-btn" onclick="disconnectDevice()"><i class="fa-solid fa-grid-2"></i><i class="fa-solid fa-arrow-left"></i></div>
-                        <div class="icon-btn"><i class="fa-solid fa-headphones"></i></div>
-                        <div class="icon-btn" onclick="disconnectDevice()"><i class="fa-solid fa-plus"></i></div>
-                    </div>
+                    <button onclick="switchScreen('screenConnect')" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:6px 12px; border-radius:20px;">สลับเครื่อง</button>
                 </div>
             </div>
 
-            <!-- Title & Online Status -->
-            <div class="dash-header-bar">
-                <div class="dash-device-title" id="txtDashTitle">Smart Pillow 01</div>
-                <div class="online-pill">Online</div>
+            <div style="margin: 16px 20px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-size: 1.2rem; font-weight: 800;" id="txtDashTitle">PILLOW-089</div>
+                <div style="background:#dcfce7; color:#15803d; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:700;">• Online</div>
             </div>
 
-            <!-- Main Dark Card (Sound & Posture) -->
+            <!-- Dark Main Card -->
             <div class="dark-card">
-                <div class="dark-card-top">
-                    <div class="pill-tag"><i class="fa-solid fa-microphone" style="color: #38bdf8;"></i> Sound Rate</div>
-                    <div class="live-tag">• LIVE</div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                    <span style="font-size: 0.8rem; color:#38bdf8;"><i class="fa-solid fa-microphone"></i> Sound Rate</span>
+                    <span style="background:#ef4444; padding:2px 8px; border-radius:8px; font-size:0.7rem; font-weight:800;">LIVE</span>
                 </div>
+                <div class="db-number"><span id="valDb">0.0</span> <span style="font-size:1.2rem; color:#38bdf8;">dB</span></div>
+                <div style="text-align:center; color:#94a3b8; font-size:0.85rem; margin-top:4px;" id="valEnvText">Quiet Environment</div>
 
-                <div class="db-main-display">
-                    <div class="db-number"><span id="valDb">0.0</span><span class="db-unit">dB</span></div>
-                    <div class="db-subtext" id="valSoundEnv">Quiet Environment</div>
-                </div>
-
-                <div class="dark-card-bottom">
-                    <div class="posture-main">
-                        <i class="fa-solid fa-bed" style="color: #38bdf8;"></i> 
-                        <span id="valPosture">Supine (Back)</span>
-                    </div>
-                    <div class="angle-text">
-                        P: <span id="valPitch">0.0°</span> | R: <span id="valRoll">0.0°</span>
-                    </div>
+                <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:16px; margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:700;" id="valPosture"><i class="fa-solid fa-bed"></i> นอนหงาย</span>
+                    <span style="font-size:0.75rem; color:#94a3b8; font-family:monospace;">P: <span id="valPitch">0.0°</span> | R: <span id="valRoll">0.0°</span></span>
                 </div>
             </div>
 
-            <!-- Twin Small Cards (Vibration & Sensor) -->
             <div class="twin-cards">
-                <!-- Vibration Card -->
                 <div class="mini-card">
-                    <div class="mini-icon" id="vibeIconBox" style="background: #f1f5f9; color: #64748b;">
-                        <i class="fa-solid fa-bell-slash"></i>
-                    </div>
+                    <i class="fa-solid fa-bell-slash" id="vibeIcon" style="font-size:1.2rem; color:#64748b;"></i>
                     <div>
-                        <div class="mini-tag" id="vibeTag" style="background: #f1f5f9; color: #64748b;">Inactive</div>
-                        <div class="mini-val" id="vibeStatusText">Vibration Off</div>
+                        <div style="font-size:0.65rem; font-weight:700; color:#64748b;">Vibration</div>
+                        <div style="font-size:0.85rem; font-weight:800;" id="vibeText">Off</div>
                     </div>
                 </div>
-
-                <!-- IMU Sensor Card -->
                 <div class="mini-card">
-                    <div class="mini-icon" style="background: #eff6ff; color: #2563eb;">
-                        <i class="fa-solid fa-user-doctor"></i>
-                    </div>
+                    <i class="fa-solid fa-user-doctor" style="font-size:1.2rem; color:#2563eb;"></i>
                     <div>
-                        <div class="mini-tag" style="background: #eff6ff; color: #2563eb;">IMU Sensor</div>
-                        <div class="mini-val">Posture Track</div>
+                        <div style="font-size:0.65rem; font-weight:700; color:#2563eb;">IMU Sensor</div>
+                        <div style="font-size:0.85rem; font-weight:800;">Posture Track</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Sound Rate Graph Card -->
-            <div class="graph-box">
-                <div class="graph-head">
-                    <div class="graph-title">SOUND RATE GRAPH</div>
-                    <div class="graph-sub">Real-time dB Log</div>
-                </div>
-                <div style="height: 180px;">
-                    <canvas id="soundChart"></canvas>
-                </div>
+            <!-- Graph Box -->
+            <div style="background:white; margin:0 20px; padding:20px; border-radius:24px; border:1px solid #f1f5f9;">
+                <div style="font-size:0.8rem; font-weight:800; color:#475569; margin-bottom:10px;">SOUND RATE GRAPH</div>
+                <div style="height: 180px;"><canvas id="soundChart"></canvas></div>
             </div>
         </div>
 
-        <!-- Bottom Navigation Bar -->
+        <!-- =========================================================
+             PAGE 3: SLEEP HISTORY SELECT PILLOW (ด่านที่ 1 เลือกหมอน)
+             ========================================================= -->
+        <div id="screenHistorySelect" class="screen-content hidden">
+            <div class="header-blue">
+                <div class="header-title">Sleep History</div>
+                <p style="font-size: 0.825rem; opacity: 0.9; margin-top: 6px;">เลือกหมอนเพื่อดูประวัติการนอน</p>
+            </div>
+
+            <div style="margin: 20px; font-size: 0.8rem; font-weight:800; color:#64748b;">SELECT PILLOW DEVICE</div>
+            
+            <div class="device-card" onclick="openHistoryForDevice('PILLOW-089')">
+                <div>
+                    <div style="font-size: 0.95rem; font-weight: 700;">Smart Pillow (PILLOW-089)</div>
+                    <div style="font-size: 0.75rem; color: #94a3b8;">ดูประวัติหมอนใบนี้</div>
+                </div>
+                <button style="background:#2563eb; color:white; border:none; padding:8px 16px; border-radius:16px; font-weight:700;">ดูประวัติ ></button>
+            </div>
+        </div>
+
+        <!-- =========================================================
+             PAGE 4: SLEEP HISTORY DETAILS (ด่านที่ 2 แสดงผลประวัติแยกตามวัน)
+             ========================================================= -->
+        <div id="screenHistoryDetails" class="screen-content hidden">
+            <div class="header-blue">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div class="header-title">ประวัติการนอน</div>
+                    <button onclick="switchScreen('screenHistorySelect')" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:6px 12px; border-radius:20px; font-size:0.8rem;"><i class="fa-solid fa-arrow-left"></i> เปลี่ยนหมอน</button>
+                </div>
+                <p style="font-size: 0.85rem; opacity: 0.9; margin-top: 6px;" id="txtHistoryDeviceName">หมอน: PILLOW-089</p>
+            </div>
+
+            <div class="history-section" id="historyDatesContainer">
+                <div style="text-align:center; padding:40px; color:#94a3b8;">กำลังโหลดประวัติ...</div>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
         <div class="bottom-nav">
-            <div class="nav-item active" onclick="disconnectDevice()">
+            <div class="nav-item active" id="navPillow" onclick="navToPillow()">
                 <i class="fa-solid fa-border-all"></i>
                 <span>Pillow</span>
             </div>
-            <div class="nav-item">
+            <div class="nav-item" id="navHistory" onclick="navToHistory()">
                 <i class="fa-solid fa-clock-rotate-left"></i>
                 <span>Sleep History</span>
             </div>
@@ -384,7 +254,7 @@
 
     <script>
         // =========================================================
-        // 1. Firebase Initialization
+        // Firebase Config & Global Variables
         // =========================================================
         const firebaseConfig = {
             databaseURL: "https://mon-tay2-default-rtdb.asia-southeast1.firebasedatabase.app"
@@ -392,138 +262,220 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        let activePillowRef = null;
         let currentDeviceId = "";
+        let activePillowRef = null;
+        let activeHistoryDevice = "";
 
-        // =========================================================
-        // 2. Chart Setup (Chart.js)
-        // =========================================================
+        // Session variables for tracking min/max & posture changes
+        let currentSessionKey = null;
+        let sessionMinDb = 999;
+        let sessionMaxDb = 0;
+        let lastPostureTracked = "";
+
+        // Chart Setup
         const ctxLine = document.getElementById('soundChart').getContext('2d');
         const soundChart = new Chart(ctxLine, {
             type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    data: [],
-                    borderColor: '#2563eb',
-                    backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                    fill: true,
-                    tension: 0.3,
-                    borderWidth: 2,
-                    pointRadius: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { min: 30, max: 100, grid: { color: '#f1f5f9' }, ticks: { stepSize: 10 } },
-                    x: { grid: { display: false }, ticks: { display: false } }
-                },
-                plugins: { legend: { display: false } }
-            }
+            data: { labels: [], datasets: [{ data: [], borderColor: '#2563eb', fill: false }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
 
-        // =========================================================
-        // 3. Device Connection Handlers
-        // =========================================================
+        // Navigation Controls
+        function switchScreen(screenId) {
+            ['screenConnect', 'screenDashboard', 'screenHistorySelect', 'screenHistoryDetails'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        function navToPillow() {
+            document.getElementById('navPillow').classList.add('active');
+            document.getElementById('navHistory').classList.remove('active');
+            if (currentDeviceId) {
+                switchScreen('screenDashboard');
+            } else {
+                switchScreen('screenConnect');
+            }
+        }
+
+        function navToHistory() {
+            document.getElementById('navHistory').classList.add('active');
+            document.getElementById('navPillow').classList.remove('active');
+            switchScreen('screenHistorySelect');
+        }
+
         function addAndConnectDevice() {
-            const devId = document.getElementById('inputDeviceId').value.trim();
-            if (!devId) return alert('Please enter Device ID');
-            connectSpecificDevice(devId);
+            const id = document.getElementById('inputDeviceId').value.trim();
+            if (id) connectSpecificDevice(id);
         }
 
-        function connectSpecificDevice(devId) {
-            currentDeviceId = devId;
-            document.getElementById('txtDashTitle').innerText = `Smart Pillow (${devId})`;
-
-            // Switch Screen
-            document.getElementById('screenConnect').classList.add('hidden');
-            document.getElementById('screenDashboard').classList.remove('hidden');
-
-            // Start Firebase Realtime Listener
-            listenToPillow(devId);
+        function connectSpecificDevice(id) {
+            currentDeviceId = id;
+            document.getElementById('txtDashTitle').innerText = id;
+            switchScreen('screenDashboard');
+            listenToPillow(id);
         }
 
-        function disconnectDevice() {
-            if (activePillowRef) activePillowRef.off();
-            document.getElementById('screenDashboard').classList.add('hidden');
-            document.getElementById('screenConnect').classList.remove('hidden');
-        }
-
-        // =========================================================
-        // 4. Realtime Data Listener
-        // =========================================================
+        // Realtime Data Listener & Auto History Logger
         function listenToPillow(deviceId) {
+            if (activePillowRef) activePillowRef.off();
             activePillowRef = database.ref('/devices/' + deviceId);
+
+            const todayStr = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+            if (!currentSessionKey) {
+                currentSessionKey = "session_" + Date.now();
+            }
 
             activePillowRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (!data) return;
 
-                const nowStr = new Date().toLocaleTimeString();
                 const soundDb = data.db !== undefined ? Number(data.db) : 0;
                 const pitchVal = data.pitch !== undefined ? Number(data.pitch) : 0;
                 const rollVal = data.roll !== undefined ? Number(data.roll) : 0;
+                const posture = data.posture || getPosture(pitchVal, rollVal);
                 const isVibe = data.isVibrating || false;
-                const postureText = data.posture || getPostureEng(pitchVal, rollVal);
+                const timeStr = new Date().toLocaleTimeString();
 
-                // Update UI Values
+                // 1. Update UI
                 document.getElementById('valDb').innerText = soundDb.toFixed(1);
                 document.getElementById('valPitch').innerText = pitchVal.toFixed(1) + '°';
                 document.getElementById('valRoll').innerText = rollVal.toFixed(1) + '°';
-                document.getElementById('valPosture').innerText = postureText;
+                document.getElementById('valPosture').innerText = posture;
 
-                // Environment Status Text
-                const envText = document.getElementById('valSoundEnv');
-                if (soundDb > 60) {
-                    envText.innerText = "Loud Snoring Detected";
-                    envText.style.color = "#f87171";
-                } else if (soundDb > 50) {
-                    envText.innerText = "Moderate Noise";
-                    envText.style.color = "#fbbf24";
-                } else {
-                    envText.innerText = "Quiet Environment";
-                    envText.style.color = "#94a3b8";
-                }
+                document.getElementById('vibeText').innerText = isVibe ? "Vibrating!" : "Off";
+                document.getElementById('vibeIcon').className = isVibe ? "fa-solid fa-bell style-vibe" : "fa-solid fa-bell-slash";
 
-                // Vibration Card Status
-                const vibeBox = document.getElementById('vibeIconBox');
-                const vibeTag = document.getElementById('vibeTag');
-                const vibeText = document.getElementById('vibeStatusText');
-
-                if (isVibe) {
-                    vibeBox.style.background = "#fee2e2"; vibeBox.style.color = "#ef4444";
-                    vibeBox.innerHTML = '<i class="fa-solid fa-bell"></i>';
-                    vibeTag.style.background = "#fee2e2"; vibeTag.style.color = "#ef4444";
-                    vibeTag.innerText = "Active";
-                    vibeText.innerText = "Vibrating...";
-                } else {
-                    vibeBox.style.background = "#f1f5f9"; vibeBox.style.color = "#64748b";
-                    vibeBox.innerHTML = '<i class="fa-solid fa-bell-slash"></i>';
-                    vibeTag.style.background = "#f1f5f9"; vibeTag.style.color = "#64748b";
-                    vibeTag.innerText = "Inactive";
-                    vibeText.innerText = "Vibration Off";
-                }
-
-                // Update Sound Chart
-                soundChart.data.labels.push(nowStr);
+                // Update Chart
+                soundChart.data.labels.push(timeStr);
                 soundChart.data.datasets[0].data.push(soundDb);
-                if (soundChart.data.labels.length > 20) {
+                if (soundChart.data.labels.length > 15) {
                     soundChart.data.labels.shift();
                     soundChart.data.datasets[0].data.shift();
                 }
                 soundChart.update();
+
+                // 2. Auto Record Min/Max Sound & Posture Changes to History
+                if (soundDb > 0) {
+                    if (soundDb < sessionMinDb) sessionMinDb = soundDb;
+                    if (soundDb > sessionMaxDb) sessionMaxDb = soundDb;
+                }
+
+                const historyRef = database.ref(`/history/${deviceId}/${todayStr}/${currentSessionKey}`);
+                historyRef.update({
+                    minDb: sessionMinDb === 999 ? soundDb : sessionMinDb,
+                    maxDb: sessionMaxDb,
+                    lastUpdated: timeStr
+                });
+
+                // Track Posture Changes Only
+                if (posture !== lastPostureTracked) {
+                    lastPostureTracked = posture;
+                    historyRef.child('postureLogs').push({
+                        time: timeStr,
+                        posture: posture,
+                        db: soundDb
+                    });
+                }
             });
         }
 
-        // Posture English Format
-        function getPostureEng(p, r) {
-            if (r > 20) return "Right Side";
-            if (r < -20) return "Left Side";
-            if (p > 20) return "Head Elevated";
-            if (p < -20) return "Head Tilted Back";
-            return "Supine (Back)";
+        function getPosture(p, r) {
+            if (r > 20) return "นอนตะแคงขวา";
+            if (r < -20) return "นอนตะแคงซ้าย";
+            if (Math.abs(p) > 20) return "ก้ม/เงย";
+            return "นอนหงาย";
+        }
+
+        // =========================================================
+        // HISTORY DETAILS FETCHING & RENDERING
+        // =========================================================
+        function openHistoryForDevice(deviceId) {
+            activeHistoryDevice = deviceId;
+            document.getElementById('txtHistoryDeviceName').innerText = `หมอน: ${deviceId}`;
+            switchScreen('screenHistoryDetails');
+
+            const historyContainer = document.getElementById('historyDatesContainer');
+            historyContainer.innerHTML = '<div style="text-align:center; padding:30px; color:#94a3b8;">กำลังดึงประวัติ...</div>';
+
+            database.ref(`/history/${deviceId}`).once('value', (snapshot) => {
+                const historyData = snapshot.val();
+                if (!historyData) {
+                    historyContainer.innerHTML = '<div style="text-align:center; padding:30px; color:#94a3b8;">ยังไม่มีประวัติการนอนสำหรับหมอนนี้</div>';
+                    return;
+                }
+
+                let html = '';
+                const dates = Object.keys(historyData).reverse(); // เรียงวันล่าสุดขึ้นก่อน
+
+                dates.forEach(dateKey => {
+                    const sessions = historyData[dateKey];
+                    let sessionCount = Object.keys(sessions).length;
+
+                    html += `
+                        <div class="date-card">
+                            <div class="date-header" onclick="toggleSessionView('${dateKey}')">
+                                <div>
+                                    <i class="fa-solid fa-calendar-day" style="color:#2563eb; margin-right:8px;"></i>
+                                    <span>วันที่ ${dateKey}</span>
+                                </div>
+                                <span style="font-size:0.75rem; background:#f1f5f9; padding:4px 10px; border-radius:12px;">${sessionCount} รอบการนอน ▼</span>
+                            </div>
+                            <div id="sessionContainer_${dateKey}" class="hidden">
+                    `;
+
+                    Object.keys(sessions).forEach((sKey, index) => {
+                        const s = sessions[sKey];
+                        const minDb = s.minDb ? Number(s.minDb).toFixed(1) : '0.0';
+                        const maxDb = s.maxDb ? Number(s.maxDb).toFixed(1) : '0.0';
+                        const postureLogs = s.postureLogs || {};
+
+                        html += `
+                            <div class="session-box">
+                                <div style="font-size:0.8rem; font-weight:700; color:#475569;">รอบที่ ${index + 1} (บันทึกล่าสุด: ${s.lastUpdated || '-'})</div>
+                                
+                                <div class="sound-minmax-grid">
+                                    <div class="minmax-badge min-badge">
+                                        <div style="font-size:0.65rem; font-weight:700;">เสียงเบาสุด</div>
+                                        <div style="font-size:1.1rem; font-weight:800;">${minDb} dB</div>
+                                    </div>
+                                    <div class="minmax-badge max-badge">
+                                        <div style="font-size:0.65rem; font-weight:700;">เสียงดังสุด</div>
+                                        <div style="font-size:1.1rem; font-weight:800;">${maxDb} dB</div>
+                                    </div>
+                                </div>
+
+                                <div style="font-size:0.75rem; font-weight:700; color:#64748b; margin-top:10px; margin-bottom:4px;">ไทม์ไลน์การเปลี่ยนท่านอน:</div>
+                        `;
+
+                        if (Object.keys(postureLogs).length === 0) {
+                            html += `<div style="font-size:0.75rem; color:#94a3b8;">ไม่มีการเปลี่ยนท่านอน</div>`;
+                        } else {
+                            Object.keys(postureLogs).forEach(pKey => {
+                                const log = postureLogs[pKey];
+                                html += `
+                                    <div class="posture-log-item">
+                                        <span>⏰ ${log.time}</span>
+                                        <span style="font-weight:700; color:#2563eb;">${log.posture}</span>
+                                        <span>(${log.db ? log.db.toFixed(1) : 0} dB)</span>
+                                    </div>
+                                `;
+                            });
+                        }
+
+                        html += `</div>`;
+                    });
+
+                    html += `</div></div>`;
+                });
+
+                historyContainer.innerHTML = html;
+            });
+        }
+
+        function toggleSessionView(dateKey) {
+            const elem = document.getElementById(`sessionContainer_${dateKey}`);
+            if (elem) elem.classList.toggle('hidden');
         }
     </script>
 </body>
