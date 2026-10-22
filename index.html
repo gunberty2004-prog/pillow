@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Pillow Animated App</title>
+    <title>Smart Pillow Animated App with Back Button</title>
     
     <!-- Google Fonts & Font Awesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -29,14 +29,13 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Prompt', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        /* 1. Animated Moving Gradient Background */
+        /* Moving Gradient Background */
         body { 
             background: linear-gradient(-45deg, #0f172a, #1e3a8a, #0284c7, #1e293b);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px;
-            overflow: hidden;
-            position: relative;
+            overflow: hidden; position: relative;
         }
 
         @keyframes gradientBG {
@@ -45,11 +44,10 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Ambient Animated Orbs in Background */
+        /* Ambient Animated Orbs */
         .bg-orb {
             position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.4;
-            animation: floatOrb 10s infinite ease-in-out alternate;
-            z-index: 0;
+            animation: floatOrb 10s infinite ease-in-out alternate; z-index: 0;
         }
         .orb-1 { width: 300px; height: 300px; background: #38bdf8; top: 10%; left: 15%; animation-duration: 12s; }
         .orb-2 { width: 250px; height: 250px; background: #818cf8; bottom: 10%; right: 15%; animation-duration: 9s; }
@@ -59,13 +57,12 @@
             100% { transform: translate(40px, -50px) scale(1.15); }
         }
 
-        /* Mobile App Frame Container */
+        /* Mobile Container */
         .app-container {
             width: 100%; max-width: 420px; height: 880px; max-height: 95vh;
             background: var(--bg-light); border-radius: 36px;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
-            overflow: hidden; position: relative; display: flex; flex-direction: column;
-            z-index: 10;
+            overflow: hidden; position: relative; display: flex; flex-direction: column; z-index: 10;
         }
 
         .hidden { display: none !important; }
@@ -87,14 +84,24 @@
 
         .screen-content { flex: 1; overflow-y: auto; padding-bottom: 80px; }
 
-        /* Blue Top Header with Wave Animation Accent */
+        /* Blue Top Header */
         .header-blue {
-            background: var(--blue-gradient); padding: 30px 24px 20px 24px; color: white;
+            background: var(--blue-gradient); padding: 25px 20px 20px 20px; color: white;
             border-bottom-left-radius: 28px; border-bottom-right-radius: 28px;
             position: relative; overflow: hidden;
         }
         .header-top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
-        .header-title { font-size: 1.7rem; font-weight: 800; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-title { font-size: 1.6rem; font-weight: 800; }
+        
+        /* Back Button Style */
+        .back-btn {
+            width: 38px; height: 38px; background: rgba(255, 255, 255, 0.2);
+            border: none; border-radius: 50%; color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; cursor: pointer; transition: background 0.2s, transform 0.1s;
+        }
+        .back-btn:active { transform: scale(0.9); background: rgba(255, 255, 255, 0.3); }
 
         /* 1. FIND PILLOW SCREEN */
         .search-card {
@@ -111,17 +118,13 @@
         /* 2. DASHBOARD SCREEN */
         .dark-card {
             background: var(--dark-card); margin: 0 20px 16px 20px; padding: 20px;
-            border-radius: 24px; color: white;
-            box-shadow: 0 10px 25px rgba(12, 19, 39, 0.3);
+            border-radius: 24px; color: white; box-shadow: 0 10px 25px rgba(12, 19, 39, 0.3);
             position: relative; overflow: hidden;
         }
-
-        /* Animated Pulsing Glow Inside Dark Card */
         .dark-card::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, transparent 60%);
-            animation: pulseGlow 4s infinite ease-in-out;
-            pointer-events: none;
+            animation: pulseGlow 4s infinite ease-in-out; pointer-events: none;
         }
 
         @keyframes pulseGlow {
@@ -143,21 +146,12 @@
             padding: 16px 20px; background: #ffffff; display: flex; justify-content: space-between; align-items: center;
             cursor: pointer; font-weight: 700; color: #0f172a;
         }
-        .session-box {
-            background: #f8fafc; padding: 16px; border-top: 1px solid #f1f5f9;
-        }
-        .sound-minmax-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;
-        }
-        .minmax-badge {
-            padding: 10px; border-radius: 12px; text-align: center;
-        }
+        .session-box { background: #f8fafc; padding: 16px; border-top: 1px solid #f1f5f9; }
+        .sound-minmax-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+        .minmax-badge { padding: 10px; border-radius: 12px; text-align: center; }
         .min-badge { background: #e0f2fe; color: #0369a1; }
         .max-badge { background: #fee2e2; color: #b91c1c; }
-        .posture-log-item {
-            display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #cbd5e1;
-            font-size: 0.8rem; color: #334155;
-        }
+        .posture-log-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #cbd5e1; font-size: 0.8rem; color: #334155; }
     </style>
 </head>
 <body>
@@ -168,11 +162,15 @@
 
     <div class="app-container">
 
-        <!-- PAGE 1: FIND PILLOW SCREEN -->
+        <!-- =========================================================
+             PAGE 1: FIND PILLOW SCREEN
+             ========================================================= -->
         <div id="screenConnect" class="screen-content">
             <div class="header-blue">
                 <div class="header-top">
-                    <div class="header-title">Find Pillow</div>
+                    <div class="header-left">
+                        <div class="header-title">Find Pillow</div>
+                    </div>
                 </div>
                 <p style="font-size: 0.825rem; opacity: 0.9; margin-top: 6px;">Search & Connect your Smart Pillow device</p>
             </div>
@@ -195,12 +193,19 @@
             </div>
         </div>
 
-        <!-- PAGE 2: DASHBOARD SCREEN -->
+        <!-- =========================================================
+             PAGE 2: DASHBOARD SCREEN (มีปุ่มย้อนกลับมุมซ้ายบน)
+             ========================================================= -->
         <div id="screenDashboard" class="screen-content hidden">
             <div class="header-blue">
                 <div class="header-top">
-                    <div class="header-title">Device</div>
-                    <button onclick="switchScreen('screenConnect')" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:6px 12px; border-radius:20px;">สลับเครื่อง</button>
+                    <div class="header-left">
+                        <!-- ปุ่มย้อนกลับมุมซ้ายบน -->
+                        <button class="back-btn" onclick="switchScreen('screenConnect')">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <div class="header-title">Device</div>
+                    </div>
                 </div>
             </div>
 
@@ -209,7 +214,7 @@
                 <div style="background:#dcfce7; color:#15803d; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:700;">• Online</div>
             </div>
 
-            <!-- Dark Main Card with Animated Glow -->
+            <!-- Dark Main Card -->
             <div class="dark-card">
                 <div style="display:flex; justify-content:space-between; margin-bottom:12px; position:relative; z-index:2;">
                     <span style="font-size: 0.8rem; color:#38bdf8;"><i class="fa-solid fa-microphone"></i> Sound Rate</span>
@@ -248,10 +253,16 @@
             </div>
         </div>
 
-        <!-- PAGE 3: SLEEP HISTORY SELECT PILLOW -->
+        <!-- =========================================================
+             PAGE 3: SLEEP HISTORY SELECT PILLOW
+             ========================================================= -->
         <div id="screenHistorySelect" class="screen-content hidden">
             <div class="header-blue">
-                <div class="header-title">Sleep History</div>
+                <div class="header-top">
+                    <div class="header-left">
+                        <div class="header-title">Sleep History</div>
+                    </div>
+                </div>
                 <p style="font-size: 0.825rem; opacity: 0.9; margin-top: 6px;">เลือกหมอนเพื่อดูประวัติการนอน</p>
             </div>
 
@@ -266,12 +277,19 @@
             </div>
         </div>
 
-        <!-- PAGE 4: SLEEP HISTORY DETAILS -->
+        <!-- =========================================================
+             PAGE 4: SLEEP HISTORY DETAILS (มีปุ่มย้อนกลับมุมซ้ายบน)
+             ========================================================= -->
         <div id="screenHistoryDetails" class="screen-content hidden">
             <div class="header-blue">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div class="header-title">ประวัติการนอน</div>
-                    <button onclick="switchScreen('screenHistorySelect')" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:6px 12px; border-radius:20px; font-size:0.8rem;"><i class="fa-solid fa-arrow-left"></i> เปลี่ยนหมอน</button>
+                <div class="header-top">
+                    <div class="header-left">
+                        <!-- ปุ่มย้อนกลับมุมซ้ายบน -->
+                        <button class="back-btn" onclick="switchScreen('screenHistorySelect')">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <div class="header-title">ประวัติการนอน</div>
+                    </div>
                 </div>
                 <p style="font-size: 0.85rem; opacity: 0.9; margin-top: 6px;" id="txtHistoryDeviceName">หมอน: PILLOW-089</p>
             </div>
