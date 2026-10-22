@@ -2,83 +2,495 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Pillow Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Pillow Mobile Dashboard</title>
+    
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f3f4f6; padding: 25px 15px; color: #1f2937; }
-        .container { max-width: 600px; margin: 0 auto; }
-        .card-header { background: #ffffff; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
-        .title { font-size: 1.3rem; font-weight: 700; color: #111827; }
-        .badge { background: #e0e7ff; color: #4338ca; padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .card { background: #ffffff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); text-align: center; }
-        .card-title { font-size: 0.85rem; color: #6b7280; margin-bottom: 8px; font-weight: 600; }
-        .card-value { font-size: 2rem; font-weight: 800; color: #111827; }
-        .status-vibe { padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.9rem; display: inline-block; margin-top: 5px; }
-        .vibe-on { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
-        .vibe-off { background: #f3f4f6; color: #6b7280; }
-    </style>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <!-- Firebase Compat SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg-body: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --border-radius: 20px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-body); color: var(--text-main); padding: 12px; }
+        .container { max-width: 500px; margin: 0 auto; }
+
+        /* Hide Screen Helper */
+        .hidden { display: none !important; }
+
+        /* =========================================================
+           1. CONNECT DEVICE SCREEN (หน้าเลือกอุปกรณ์)
+           ========================================================= */
+        .connect-screen {
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+        .app-brand-icon {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white; border-radius: 24px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; margin-bottom: 20px;
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+        }
+        .connect-card {
+            background: var(--card-bg);
+            width: 100%;
+            padding: 28px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px -5px rgba(0,0,0,0.06);
+        }
+        .device-input-group {
+            margin: 20px 0;
+            text-align: left;
+        }
+        .device-input-group label {
+            display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); margin-bottom: 8px;
+        }
+        .input-select {
+            width: 100%; padding: 14px;
+            border: 2px solid #e2e8f0; border-radius: 12px;
+            font-size: 1rem; font-weight: 600; color: var(--text-main);
+            outline: none; transition: border-color 0.2s;
+            background: #f8fafc;
+        }
+        .input-select:focus { border-color: var(--primary); background: #ffffff; }
+
+        /* Button */
+        .btn-connect {
+            width: 100%; padding: 15px; border: none; border-radius: 14px;
+            background: var(--primary); color: white; font-size: 1rem; font-weight: 600;
+            cursor: pointer; transition: background 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .btn-connect:active { transform: scale(0.98); }
+
+        /* =========================================================
+           2. MAIN DASHBOARD SCREEN (หน้าแดชบอร์ดหลัก)
+           ========================================================= */
+        /* Top Header Mobile */
+        header {
+            background: var(--card-bg);
+            padding: 14px 16px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px -3px rgba(0,0,0,0.05);
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px;
+        }
+        .device-info-tag {
+            display: flex; align-items: center; gap: 8px;
+        }
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--success);
+            box-shadow: 0 0 6px var(--success);
+            animation: pulse 1.8s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .btn-switch {
+            background: #f1f5f9; border: none; padding: 6px 12px;
+            border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: var(--text-sub);
+            cursor: pointer;
+        }
+
+        /* Metrics Cards */
+        .metrics-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+            margin-bottom: 16px;
+        }
+        .card {
+            background: var(--card-bg); padding: 16px; border-radius: 16px;
+            box-shadow: 0 2px 10px -3px rgba(0,0,0,0.04); text-align: center;
+        }
+        .card-full { grid-column: span 2; }
+        .card-title { font-size: 0.8rem; color: var(--text-sub); font-weight: 600; margin-bottom: 6px; }
+        .card-val { font-size: 1.8rem; font-weight: 700; color: var(--text-main); }
+        .card-unit { font-size: 0.85rem; font-weight: 500; color: var(--text-sub); }
+
+        .progress-bg { background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 8px; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0%; background: var(--primary); transition: width 0.3s; }
+
+        .vibe-badge {
+            display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-top: 4px;
+        }
+        .vibe-off { background: #f1f5f9; color: var(--text-sub); }
+        .vibe-on { background: #fee2e2; color: var(--danger); border: 1px solid #fca5a5; animation: pulse 0.8s infinite; }
+
+        /* Chart Card */
+        .chart-card {
+            background: var(--card-bg); padding: 16px; border-radius: 16px;
+            box-shadow: 0 2px 10px -3px rgba(0,0,0,0.04); margin-bottom: 16px;
+        }
+        .chart-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 12px; color: var(--text-main); }
+
+        /* Table Card */
+        .table-card {
+            background: var(--card-bg); padding: 16px; border-radius: 16px;
+            box-shadow: 0 2px 10px -3px rgba(0,0,0,0.04); margin-bottom: 20px;
+        }
+        .table-responsive { overflow-x: auto; max-height: 200px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th { background: #f8fafc; padding: 8px; text-align: left; color: var(--text-sub); }
+        td { padding: 8px; border-bottom: 1px solid #f1f5f9; }
+    </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="card-header">
-            <div class="title"><i class="fa-solid fa-bed"></i> Smart Pillow System</div>
-            <div class="badge" id="deviceIdTag">PILLOW-089</div>
+
+        <!-- =========================================================
+             หน้า 1: เลือกและเชื่อมต่ออุปกรณ์ (Device Connection Screen)
+             ========================================================= -->
+        <div id="screenConnect" class="connect-screen">
+            <div class="app-brand-icon">
+                <i class="fa-solid fa-bed"></i>
+            </div>
+            <h2 style="font-size: 1.4rem; font-weight: 700;">Smart Pillow System</h2>
+            <p style="font-size: 0.85rem; color: var(--text-sub); margin-top: 4px;">ระบบตรวจจับเสียงกรนและปรับท่านอน</p>
+
+            <div class="connect-card" style="margin-top: 24px;">
+                <div class="device-input-group">
+                    <label><i class="fa-solid fa-wifi"></i> เลือกรหัสหมอนสมาร์ท</label>
+                    <select id="selectDeviceId" class="input-select" onchange="toggleCustomInput(this)">
+                        <option value="PILLOW-089">PILLOW-089 (เครื่องหลัก)</option>
+                        <option value="PILLOW-001">PILLOW-001</option>
+                        <option value="custom">+ ระบุรหัสหมอนอื่น...</option>
+                    </select>
+                </div>
+
+                <div id="customInputGroup" class="device-input-group hidden">
+                    <label>กรอก Device ID ของหมอน</label>
+                    <input type="text" id="inputCustomId" class="input-select" placeholder="เช่น PILLOW-999">
+                </div>
+
+                <button class="btn-connect" onclick="connectDevice()">
+                    <i class="fa-solid fa-link"></i> เชื่อมต่ออุปกรณ์
+                </button>
+            </div>
         </div>
 
-        <div class="grid">
-            <div class="card">
-                <div class="card-title">ระดับเสียงกรน</div>
-                <div class="card-value" id="valDb">0.0 <span style="font-size: 1rem; font-weight: 500;">dB</span></div>
+
+        <!-- =========================================================
+             หน้า 2: รายละเอียดแดชบอร์ดหลัก (Main Dashboard Screen)
+             ========================================================= -->
+        <div id="screenDashboard" class="hidden">
+            <!-- Header -->
+            <header>
+                <div class="device-info-tag">
+                    <span class="status-dot"></span>
+                    <div>
+                        <div style="font-size: 0.7rem; color: var(--text-sub);">กำลังเชื่อมต่อ</div>
+                        <div style="font-size: 0.95rem; font-weight: 700;" id="txtConnectedId">PILLOW-089</div>
+                    </div>
+                </div>
+                <button class="btn-switch" onclick="disconnectDevice()">
+                    <i class="fa-solid fa-arrows-rotate"></i> สลับเครื่อง
+                </button>
+            </header>
+
+            <!-- Metrics Grid -->
+            <div class="metrics-grid">
+                <!-- Sound dB -->
+                <div class="card">
+                    <div class="card-title"><i class="fa-solid fa-volume-high"></i> เสียงกรน</div>
+                    <div class="card-val" id="valDb">0.0</div>
+                    <div class="card-unit">dB</div>
+                    <div class="progress-bg">
+                        <div class="progress-fill" id="barDb"></div>
+                    </div>
+                </div>
+
+                <!-- Vibration Status -->
+                <div class="card">
+                    <div class="card-title"><i class="fa-solid fa-bell"></i> สถานะการสั่น</div>
+                    <div id="vibeContainer" style="margin-top: 8px;">
+                        <span class="vibe-badge vibe-off">ปกติ</span>
+                    </div>
+                </div>
+
+                <!-- Posture -->
+                <div class="card card-full">
+                    <div class="card-title"><i class="fa-solid fa-user-ninja"></i> ท่านอนปัจจุบัน</div>
+                    <div class="card-val" style="font-size: 1.3rem;" id="valPosture">นอนหงาย</div>
+                    <div style="font-size: 0.75rem; color: var(--text-sub); margin-top: 4px;">
+                        Pitch: <span id="valPitch" style="font-weight: 700;">0.0°</span> | 
+                        Roll: <span id="valRoll" style="font-weight: 700;">0.0°</span>
+                    </div>
+                </div>
             </div>
-            <div class="card">
-                <div class="card-title">สถานะการสั่นเตือน</div>
-                <div id="valVibrating"><span class="status-vibe vibe-off">ปกติ (ไม่สั่น)</span></div>
+
+            <!-- Realtime Sound Chart -->
+            <div class="chart-card">
+                <div class="chart-title"><i class="fa-solid fa-chart-line" style="color: var(--primary);"></i> ระดับเสียงเรียลไทม์ (dB)</div>
+                <div style="height: 180px;">
+                    <canvas id="soundChart"></canvas>
+                </div>
             </div>
-            <div class="card">
-                <div class="card-title">มุมก้ม-เงย (Pitch)</div>
-                <div class="card-value" id="valPitch">0.0°</div>
+
+            <!-- Posture Chart -->
+            <div class="chart-card">
+                <div class="chart-title"><i class="fa-solid fa-chart-pie" style="color: var(--primary);"></i> สัดส่วนท่านอนสะสม</div>
+                <div style="height: 160px; display: flex; justify-content: center;">
+                    <canvas id="postureChart"></canvas>
+                </div>
             </div>
-            <div class="card">
-                <div class="card-title">มุมเอียงซ้าย-ขวา (Roll)</div>
-                <div class="card-value" id="valRoll">0.0°</div>
+
+            <!-- Event Log Table -->
+            <div class="table-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div class="chart-title" style="margin: 0;"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการกรน</div>
+                    <button onclick="exportCSV()" style="background: none; border: none; color: var(--primary); font-weight: 600; font-size: 0.75rem; cursor: pointer;">
+                        <i class="fa-solid fa-download"></i> CSV
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>เวลา</th>
+                                <th>เสียง (dB)</th>
+                                <th>ท่านอน</th>
+                                <th>สั่นเตือน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logTableBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: var(--text-sub);">กำลังรอข้อมูลจากหมอน...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
     </div>
 
     <script>
+        // =========================================================
+        // 1. Firebase Initialization
+        // =========================================================
         const firebaseConfig = {
             databaseURL: "https://mon-tay2-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
-
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Path ชี้ตรงไปที่ /devices/PILLOW-089
-        const targetDeviceId = "PILLOW-089";
-        const pillowRef = database.ref('/devices/' + targetDeviceId);
+        let activePillowRef = null;
+        let currentDeviceId = "";
+        let eventLogs = [];
+        let postureStats = { "นอนหงาย": 1, "นอนตะแคงซ้าย": 0, "นอนตะแคงขวา": 0, "ก้ม/เงย": 0 };
 
-        pillowRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                document.getElementById('valDb').innerHTML = (data.db !== undefined ? Number(data.db).toFixed(1) : '0.0') + ' <span style="font-size: 1rem; font-weight: 500;">dB</span>';
-                document.getElementById('valPitch').innerText = (data.pitch !== undefined ? Number(data.pitch).toFixed(1) : '0.0') + '°';
-                document.getElementById('valRoll').innerText = (data.roll !== undefined ? Number(data.roll).toFixed(1) : '0.0') + '°';
+        // UI Helpers
+        function toggleCustomInput(select) {
+            const customGroup = document.getElementById('customInputGroup');
+            if (select.value === 'custom') {
+                customGroup.classList.remove('hidden');
+            } else {
+                customGroup.classList.add('hidden');
+            }
+        }
 
-                const vibeElem = document.getElementById('valVibrating');
-                if (data.isVibrating) {
-                    vibeElem.innerHTML = '<span class="status-vibe vibe-on">⚡ กำลังสั่นเตือน</span>';
-                } else {
-                    vibeElem.innerHTML = '<span class="status-vibe vibe-off">ปกติ (ไม่สั่น)</span>';
-                }
+        // =========================================================
+        // 2. Connect & Disconnect System
+        // =========================================================
+        function connectDevice() {
+            const selectVal = document.getElementById('selectDeviceId').value;
+            if (selectVal === 'custom') {
+                currentDeviceId = document.getElementById('inputCustomId').value.trim();
+                if (!currentDeviceId) return alert('กรุณากรอก Device ID');
+            } else {
+                currentDeviceId = selectVal;
+            }
+
+            // Update UI Header
+            document.getElementById('txtConnectedId').innerText = currentDeviceId;
+
+            // Switch Screen
+            document.getElementById('screenConnect').classList.add('hidden');
+            document.getElementById('screenDashboard').classList.remove('hidden');
+
+            // Start Firebase Listener
+            listenToPillow(currentDeviceId);
+        }
+
+        function disconnectDevice() {
+            if (activePillowRef) {
+                activePillowRef.off(); // ปิด Connection เดิม
+            }
+
+            // Switch Screen back
+            document.getElementById('screenDashboard').classList.add('hidden');
+            document.getElementById('screenConnect').classList.remove('hidden');
+        }
+
+        // =========================================================
+        // 3. Chart Setup
+        // =========================================================
+        const ctxLine = document.getElementById('soundChart').getContext('2d');
+        const soundChart = new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    borderWidth: 2,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { min: 20, max: 90, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
+                },
+                plugins: { legend: { display: false } }
             }
         });
+
+        const ctxPie = document.getElementById('postureChart').getContext('2d');
+        const postureChart = new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: ['นอนหงาย', 'ตะแคงซ้าย', 'ตะแคงขวา', 'ก้ม/เงย'],
+                datasets: [{
+                    data: [1, 0, 0, 0],
+                    backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#ef4444']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'right' } }
+            }
+        });
+
+        // =========================================================
+        // 4. Listen to Firebase Realtime
+        // =========================================================
+        function listenToPillow(deviceId) {
+            activePillowRef = database.ref('/devices/' + deviceId);
+
+            activePillowRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
+
+                const nowStr = new Date().toLocaleTimeString();
+                const soundDb = data.db !== undefined ? Number(data.db) : 0;
+                const pitchVal = data.pitch !== undefined ? Number(data.pitch) : 0;
+                const rollVal = data.roll !== undefined ? Number(data.roll) : 0;
+                const isVibe = data.isVibrating || false;
+                const postureText = data.posture || getPosture(pitchVal, rollVal);
+
+                // Update Cards
+                document.getElementById('valDb').innerText = soundDb.toFixed(1);
+                document.getElementById('valPitch').innerText = pitchVal.toFixed(1) + '°';
+                document.getElementById('valRoll').innerText = rollVal.toFixed(1) + '°';
+                document.getElementById('valPosture').innerText = postureText;
+
+                // Progress Bar
+                const bar = document.getElementById('barDb');
+                bar.style.width = Math.min((soundDb / 90) * 100, 100) + '%';
+                bar.style.backgroundColor = soundDb > 50 ? 'var(--danger)' : 'var(--primary)';
+
+                // Vibration Badge
+                const vibeElem = document.getElementById('vibeContainer');
+                if (isVibe) {
+                    vibeElem.innerHTML = '<span class="vibe-badge vibe-on">⚡ กำลังสั่นเตือน!</span>';
+                    addLog(nowStr, soundDb, postureText, "สั่นเตือน");
+                } else {
+                    vibeElem.innerHTML = '<span class="vibe-badge vibe-off">ปกติ</span>';
+                }
+
+                // Update Sound Chart
+                soundChart.data.labels.push(nowStr);
+                soundChart.data.datasets[0].data.push(soundDb);
+                if (soundChart.data.labels.length > 15) {
+                    soundChart.data.labels.shift();
+                    soundChart.data.datasets[0].data.shift();
+                }
+                soundChart.update();
+
+                // Update Posture Chart
+                if (postureStats[postureText] !== undefined) {
+                    postureStats[postureText]++;
+                } else {
+                    postureStats["ก้ม/เงย"]++;
+                }
+                postureChart.data.datasets[0].data = [
+                    postureStats["นอนหงาย"],
+                    postureStats["นอนตะแคงซ้าย"],
+                    postureStats["นอนตะแคงขวา"],
+                    postureStats["ก้ม/เงย"]
+                ];
+                postureChart.update();
+            });
+        }
+
+        function getPosture(p, r) {
+            if (r > 20) return "นอนตะแคงขวา";
+            if (r < -20) return "นอนตะแคงซ้าย";
+            if (Math.abs(p) > 20) return "ก้ม/เงย";
+            return "นอนหงาย";
+        }
+
+        function addLog(time, db, posture, status) {
+            eventLogs.unshift({ time, db, posture, status });
+            if (eventLogs.length > 8) eventLogs.pop();
+
+            const tbody = document.getElementById('logTableBody');
+            tbody.innerHTML = eventLogs.map(log => `
+                <tr>
+                    <td>${log.time}</td>
+                    <td><b>${log.db.toFixed(1)}</b></td>
+                    <td>${log.posture}</td>
+                    <td style="color:var(--danger); font-weight:600;">${log.status}</td>
+                </tr>
+            `).join('');
+        }
+
+        function exportCSV() {
+            if (eventLogs.length === 0) return alert('ยังไม่มีประวัติ');
+            let csv = 'Time,Sound_dB,Posture,Status\n';
+            eventLogs.forEach(r => csv += `${r.time},${r.db},${r.posture},${r.status}\n`);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `Pillow_Log_${currentDeviceId}.csv`;
+            a.click();
+        }
     </script>
 </body>
 </html>
