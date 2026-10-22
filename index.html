@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Pillow Mobile Dashboard</title>
+    <title>Smart Pillow App</title>
     
     <!-- Google Fonts & Font Awesome Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <!-- Chart.js CDN -->
@@ -18,276 +18,365 @@
 
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --bg-body: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
+            --blue-gradient: linear-gradient(135deg, #2b7fff 0%, #1e6bf2 100%);
+            --bg-light: #f4f7fb;
+            --card-white: #ffffff;
+            --dark-card: #0c1327;
+            --text-dark: #1e293b;
             --text-sub: #64748b;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
-            --border-radius: 20px;
+            --primary-blue: #2563eb;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --border-radius: 24px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-body); color: var(--text-main); padding: 12px; }
-        .container { max-width: 500px; margin: 0 auto; }
-
-        /* Hide Screen Helper */
-        .hidden { display: none !important; }
-
-        /* =========================================================
-           1. CONNECT DEVICE SCREEN (หน้าเลือกอุปกรณ์)
-           ========================================================= */
-        .connect-screen {
-            min-height: 90vh;
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Prompt', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #cbd5e1; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px; }
+        
+        /* Mobile Frame Container */
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            height: 880px;
+            max-height: 95vh;
+            background: var(--bg-light);
+            border-radius: 36px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            position: relative;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
         }
-        .app-brand-icon {
-            width: 80px; height: 80px;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            color: white; border-radius: 24px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2.5rem; margin-bottom: 20px;
-            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
-        }
-        .connect-card {
-            background: var(--card-bg);
-            width: 100%;
-            padding: 28px 20px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 20px -5px rgba(0,0,0,0.06);
-        }
-        .device-input-group {
-            margin: 20px 0;
-            text-align: left;
-        }
-        .device-input-group label {
-            display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); margin-bottom: 8px;
-        }
-        .input-select {
-            width: 100%; padding: 14px;
-            border: 2px solid #e2e8f0; border-radius: 12px;
-            font-size: 1rem; font-weight: 600; color: var(--text-main);
-            outline: none; transition: border-color 0.2s;
-            background: #f8fafc;
-        }
-        .input-select:focus { border-color: var(--primary); background: #ffffff; }
 
-        /* Button */
-        .btn-connect {
-            width: 100%; padding: 15px; border: none; border-radius: 14px;
-            background: var(--primary); color: white; font-size: 1rem; font-weight: 600;
-            cursor: pointer; transition: background 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        .hidden { display: none !important; }
+
+        /* Bottom Nav Bar */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 70px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-bottom-left-radius: 36px;
+            border-bottom-right-radius: 36px;
+            z-index: 100;
         }
-        .btn-connect:active { transform: scale(0.98); }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #94a3b8;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .nav-item.active { color: var(--primary-blue); }
+        .nav-item i { font-size: 1.2rem; }
+
+        /* Screen Content Scrollable Area */
+        .screen-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 80px;
+        }
+
+        /* Blue Top Header */
+        .header-blue {
+            background: var(--blue-gradient);
+            padding: 30px 24px 24px 24px;
+            color: white;
+            border-bottom-left-radius: 28px;
+            border-bottom-right-radius: 28px;
+            position: relative;
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .header-title { font-size: 1.8rem; font-weight: 800; }
+        .header-icons { display: flex; gap: 12px; align-items: center; }
+        .icon-btn {
+            width: 36px; height: 36px; background: rgba(255,255,255,0.2);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: white; cursor: pointer; font-size: 0.95rem;
+        }
 
         /* =========================================================
-           2. MAIN DASHBOARD SCREEN (หน้าแดชบอร์ดหลัก)
+           1. FIND PILLOW SCREEN (หน้าเชื่อมต่ออุปกรณ์)
            ========================================================= */
-        /* Top Header Mobile */
-        header {
-            background: var(--card-bg);
-            padding: 14px 16px;
-            border-radius: 16px;
-            box-shadow: 0 2px 10px -3px rgba(0,0,0,0.05);
+        .search-card {
+            background: var(--card-white);
+            margin: 20px 20px 0 20px;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .search-label { font-size: 0.75rem; font-weight: 700; color: #64748b; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .search-box { display: flex; gap: 10px; }
+        .search-input-wrapper {
+            flex: 1; background: #f8fafc; border: 1px solid #e2e8f0;
+            border-radius: 14px; padding: 10px 14px; display: flex; align-items: center; gap: 10px;
+        }
+        .search-input-wrapper input {
+            border: none; background: transparent; outline: none;
+            width: 100%; font-size: 0.95rem; font-weight: 700; color: #1e293b;
+        }
+        .btn-blue {
+            background: #2563eb; color: white; border: none;
+            padding: 0 20px; border-radius: 14px; font-weight: 700; font-size: 0.9rem;
+            cursor: pointer; transition: background 0.2s;
+        }
+
+        .section-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 16px;
+            margin: 20px 24px 12px 24px;
         }
-        .device-info-tag {
-            display: flex; align-items: center; gap: 8px;
+        .section-title { font-size: 0.8rem; font-weight: 800; color: #64748b; letter-spacing: 0.5px; }
+        .active-status { font-size: 0.75rem; font-weight: 700; color: #10b981; display: flex; align-items: center; gap: 6px; }
+        .active-status::before { content: ''; width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
+
+        .device-card {
+            background: var(--card-white);
+            margin: 0 20px 12px 20px;
+            padding: 16px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            display: flex; justify-content: space-between; align-items: center;
         }
-        .status-dot {
-            width: 8px; height: 8px; border-radius: 50%; background: var(--success);
-            box-shadow: 0 0 6px var(--success);
-            animation: pulse 1.8s infinite;
+        .device-card-left { display: flex; align-items: center; gap: 14px; }
+        .device-icon-box {
+            width: 48px; height: 48px; background: #3b82f6; color: white;
+            border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
         }
-        @keyframes pulse {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.8; }
-        }
-        .btn-switch {
-            background: #f1f5f9; border: none; padding: 6px 12px;
-            border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: var(--text-sub);
-            cursor: pointer;
+        .device-name { font-size: 0.95rem; font-weight: 700; color: #0f172a; }
+        .device-id-text { font-size: 0.75rem; font-weight: 600; color: #94a3b8; font-family: monospace; }
+        .btn-connect-pill {
+            background: #2563eb; color: white; border: none;
+            padding: 10px 18px; border-radius: 20px; font-weight: 700; font-size: 0.85rem;
+            cursor: pointer; display: flex; align-items: center; gap: 6px;
         }
 
-        /* Metrics Cards */
-        .metrics-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
-            margin-bottom: 16px;
+        /* =========================================================
+           2. DEVICE DASHBOARD SCREEN (หน้าแสดงผลหลัก)
+           ========================================================= */
+        .dash-header-bar {
+            margin: 16px 20px 12px 20px;
+            display: flex; justify-content: space-between; align-items: center;
         }
-        .card {
-            background: var(--card-bg); padding: 16px; border-radius: 16px;
-            box-shadow: 0 2px 10px -3px rgba(0,0,0,0.04); text-align: center;
+        .dash-device-title { font-size: 1.25rem; font-weight: 800; color: #0f172a; }
+        .online-pill {
+            background: #dcfce7; color: #15803d; padding: 3px 10px;
+            border-radius: 12px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;
         }
-        .card-full { grid-column: span 2; }
-        .card-title { font-size: 0.8rem; color: var(--text-sub); font-weight: 600; margin-bottom: 6px; }
-        .card-val { font-size: 1.8rem; font-weight: 700; color: var(--text-main); }
-        .card-unit { font-size: 0.85rem; font-weight: 500; color: var(--text-sub); }
+        .online-pill::before { content: ''; width: 6px; height: 6px; background: #16a34a; border-radius: 50%; }
 
-        .progress-bg { background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 8px; overflow: hidden; }
-        .progress-fill { height: 100%; width: 0%; background: var(--primary); transition: width 0.3s; }
-
-        .vibe-badge {
-            display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-top: 4px;
+        /* Big Dark Metric Card */
+        .dark-card {
+            background: var(--dark-card);
+            margin: 0 20px 16px 20px;
+            padding: 20px;
+            border-radius: 24px;
+            color: white;
+            box-shadow: 0 10px 25px rgba(12, 19, 39, 0.2);
         }
-        .vibe-off { background: #f1f5f9; color: var(--text-sub); }
-        .vibe-on { background: #fee2e2; color: var(--danger); border: 1px solid #fca5a5; animation: pulse 0.8s infinite; }
-
-        /* Chart Card */
-        .chart-card {
-            background: var(--card-bg); padding: 16px; border-radius: 16px;
-            box-shadow: 0 2px 10px -3px rgba(0,0,0,0.04); margin-bottom: 16px;
+        .dark-card-top { display: flex; justify-content: space-between; align-items: center; }
+        .pill-tag {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+            display: flex; align-items: center; gap: 6px;
         }
-        .chart-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 12px; color: var(--text-main); }
-
-        /* Table Card */
-        .table-card {
-            background: var(--card-bg); padding: 16px; border-radius: 16px;
-            box-shadow: 0 2px 10px -3px rgba(0,0,0,0.04); margin-bottom: 20px;
+        .live-tag {
+            background: #ef4444; color: white; padding: 3px 10px;
+            border-radius: 12px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px;
         }
-        .table-responsive { overflow-x: auto; max-height: 200px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        th { background: #f8fafc; padding: 8px; text-align: left; color: var(--text-sub); }
-        td { padding: 8px; border-bottom: 1px solid #f1f5f9; }
+
+        .db-main-display {
+            text-align: center; margin: 20px 0;
+        }
+        .db-number { font-size: 3.8rem; font-weight: 800; line-height: 1; letter-spacing: -1px; }
+        .db-unit { font-size: 1.2rem; font-weight: 700; color: #38bdf8; margin-left: 4px; }
+        .db-subtext { font-size: 0.85rem; color: #94a3b8; font-weight: 500; margin-top: 6px; }
+
+        .dark-card-bottom {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px; padding: 12px 16px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .posture-main { font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .angle-text { font-size: 0.75rem; font-weight: 600; color: #94a3b8; font-family: monospace; }
+
+        /* Two Small Status Cards */
+        .twin-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 20px 20px 20px; }
+        .mini-card {
+            background: var(--card-white); padding: 16px; border-radius: 20px;
+            display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #f1f5f9;
+        }
+        .mini-icon {
+            width: 42px; height: 42px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+        }
+        .mini-tag { font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 6px; display: inline-block; margin-bottom: 2px; }
+        .mini-val { font-size: 0.85rem; font-weight: 800; color: #0f172a; }
+
+        /* Graph Box */
+        .graph-box {
+            background: var(--card-white); margin: 0 20px 20px 20px;
+            padding: 20px; border-radius: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #f1f5f9;
+        }
+        .graph-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .graph-title { font-size: 0.8rem; font-weight: 800; color: #475569; letter-spacing: 0.5px; }
+        .graph-sub { font-size: 0.75rem; font-weight: 600; color: #94a3b8; }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="app-container">
 
         <!-- =========================================================
-             หน้า 1: เลือกและเชื่อมต่ออุปกรณ์ (Device Connection Screen)
+             1. FIND PILLOW SCREEN (หน้าเลือก/เชื่อมต่อหมอน)
              ========================================================= -->
-        <div id="screenConnect" class="connect-screen">
-            <div class="app-brand-icon">
-                <i class="fa-solid fa-bed"></i>
+        <div id="screenConnect" class="screen-content">
+            <div class="header-blue">
+                <div class="header-top">
+                    <div class="header-title">Find Pillow</div>
+                    <div class="icon-btn" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i></div>
+                </div>
+                <p style="font-size: 0.825rem; opacity: 0.9; margin-top: 6px;">Search & Connect your Smart Pillow device</p>
             </div>
-            <h2 style="font-size: 1.4rem; font-weight: 700;">Smart Pillow System</h2>
-            <p style="font-size: 0.85rem; color: var(--text-sub); margin-top: 4px;">ระบบตรวจจับเสียงกรนและปรับท่านอน</p>
 
-            <div class="connect-card" style="margin-top: 24px;">
-                <div class="device-input-group">
-                    <label><i class="fa-solid fa-wifi"></i> เลือกรหัสหมอนสมาร์ท</label>
-                    <select id="selectDeviceId" class="input-select" onchange="toggleCustomInput(this)">
-                        <option value="PILLOW-089">PILLOW-089 (เครื่องหลัก)</option>
-                        <option value="PILLOW-001">PILLOW-001</option>
-                        <option value="custom">+ ระบุรหัสหมอนอื่น...</option>
-                    </select>
+            <!-- Search / Add Box -->
+            <div class="search-card">
+                <div class="search-label">SEARCH / ADD DEVICE ID</div>
+                <div class="search-box">
+                    <div class="search-input-wrapper">
+                        <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8;"></i>
+                        <input type="text" id="inputDeviceId" value="PILLOW-089" placeholder="Enter Device ID">
+                    </div>
+                    <button class="btn-blue" onclick="addAndConnectDevice()">+ Add</button>
                 </div>
+            </div>
 
-                <div id="customInputGroup" class="device-input-group hidden">
-                    <label>กรอก Device ID ของหมอน</label>
-                    <input type="text" id="inputCustomId" class="input-select" placeholder="เช่น PILLOW-999">
+            <!-- Available Devices List -->
+            <div class="section-header">
+                <div class="section-title">MY PILLOWS (1)</div>
+                <div class="active-status">Bluetooth/Wi-Fi Active</div>
+            </div>
+
+            <div class="device-card">
+                <div class="device-card-left">
+                    <div class="device-icon-box"><i class="fa-solid fa-bed"></i></div>
+                    <div>
+                        <div class="device-name">Smart Pillow (PILLOW-089)</div>
+                        <div class="device-id-text">ID: PILLOW-089</div>
+                    </div>
                 </div>
-
-                <button class="btn-connect" onclick="connectDevice()">
-                    <i class="fa-solid fa-link"></i> เชื่อมต่ออุปกรณ์
+                <button class="btn-connect-pill" onclick="connectSpecificDevice('PILLOW-089')">
+                    Connect <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i>
                 </button>
             </div>
         </div>
 
 
         <!-- =========================================================
-             หน้า 2: รายละเอียดแดชบอร์ดหลัก (Main Dashboard Screen)
+             2. DEVICE DASHBOARD SCREEN (หน้าแดชบอร์ดหลัก)
              ========================================================= -->
-        <div id="screenDashboard" class="hidden">
-            <!-- Header -->
-            <header>
-                <div class="device-info-tag">
-                    <span class="status-dot"></span>
-                    <div>
-                        <div style="font-size: 0.7rem; color: var(--text-sub);">กำลังเชื่อมต่อ</div>
-                        <div style="font-size: 0.95rem; font-weight: 700;" id="txtConnectedId">PILLOW-089</div>
-                    </div>
-                </div>
-                <button class="btn-switch" onclick="disconnectDevice()">
-                    <i class="fa-solid fa-arrows-rotate"></i> สลับเครื่อง
-                </button>
-            </header>
-
-            <!-- Metrics Grid -->
-            <div class="metrics-grid">
-                <!-- Sound dB -->
-                <div class="card">
-                    <div class="card-title"><i class="fa-solid fa-volume-high"></i> เสียงกรน</div>
-                    <div class="card-val" id="valDb">0.0</div>
-                    <div class="card-unit">dB</div>
-                    <div class="progress-bg">
-                        <div class="progress-fill" id="barDb"></div>
-                    </div>
-                </div>
-
-                <!-- Vibration Status -->
-                <div class="card">
-                    <div class="card-title"><i class="fa-solid fa-bell"></i> สถานะการสั่น</div>
-                    <div id="vibeContainer" style="margin-top: 8px;">
-                        <span class="vibe-badge vibe-off">ปกติ</span>
-                    </div>
-                </div>
-
-                <!-- Posture -->
-                <div class="card card-full">
-                    <div class="card-title"><i class="fa-solid fa-user-ninja"></i> ท่านอนปัจจุบัน</div>
-                    <div class="card-val" style="font-size: 1.3rem;" id="valPosture">นอนหงาย</div>
-                    <div style="font-size: 0.75rem; color: var(--text-sub); margin-top: 4px;">
-                        Pitch: <span id="valPitch" style="font-weight: 700;">0.0°</span> | 
-                        Roll: <span id="valRoll" style="font-weight: 700;">0.0°</span>
+        <div id="screenDashboard" class="screen-content hidden">
+            <!-- Header Top Bar -->
+            <div class="header-blue" style="padding-bottom: 20px;">
+                <div class="header-top">
+                    <div class="header-title">Device</div>
+                    <div class="header-icons">
+                        <div class="icon-btn" onclick="disconnectDevice()"><i class="fa-solid fa-grid-2"></i><i class="fa-solid fa-arrow-left"></i></div>
+                        <div class="icon-btn"><i class="fa-solid fa-headphones"></i></div>
+                        <div class="icon-btn" onclick="disconnectDevice()"><i class="fa-solid fa-plus"></i></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Realtime Sound Chart -->
-            <div class="chart-card">
-                <div class="chart-title"><i class="fa-solid fa-chart-line" style="color: var(--primary);"></i> ระดับเสียงเรียลไทม์ (dB)</div>
+            <!-- Title & Online Status -->
+            <div class="dash-header-bar">
+                <div class="dash-device-title" id="txtDashTitle">Smart Pillow 01</div>
+                <div class="online-pill">Online</div>
+            </div>
+
+            <!-- Main Dark Card (Sound & Posture) -->
+            <div class="dark-card">
+                <div class="dark-card-top">
+                    <div class="pill-tag"><i class="fa-solid fa-microphone" style="color: #38bdf8;"></i> Sound Rate</div>
+                    <div class="live-tag">• LIVE</div>
+                </div>
+
+                <div class="db-main-display">
+                    <div class="db-number"><span id="valDb">0.0</span><span class="db-unit">dB</span></div>
+                    <div class="db-subtext" id="valSoundEnv">Quiet Environment</div>
+                </div>
+
+                <div class="dark-card-bottom">
+                    <div class="posture-main">
+                        <i class="fa-solid fa-bed" style="color: #38bdf8;"></i> 
+                        <span id="valPosture">Supine (Back)</span>
+                    </div>
+                    <div class="angle-text">
+                        P: <span id="valPitch">0.0°</span> | R: <span id="valRoll">0.0°</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Twin Small Cards (Vibration & Sensor) -->
+            <div class="twin-cards">
+                <!-- Vibration Card -->
+                <div class="mini-card">
+                    <div class="mini-icon" id="vibeIconBox" style="background: #f1f5f9; color: #64748b;">
+                        <i class="fa-solid fa-bell-slash"></i>
+                    </div>
+                    <div>
+                        <div class="mini-tag" id="vibeTag" style="background: #f1f5f9; color: #64748b;">Inactive</div>
+                        <div class="mini-val" id="vibeStatusText">Vibration Off</div>
+                    </div>
+                </div>
+
+                <!-- IMU Sensor Card -->
+                <div class="mini-card">
+                    <div class="mini-icon" style="background: #eff6ff; color: #2563eb;">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <div>
+                        <div class="mini-tag" style="background: #eff6ff; color: #2563eb;">IMU Sensor</div>
+                        <div class="mini-val">Posture Track</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sound Rate Graph Card -->
+            <div class="graph-box">
+                <div class="graph-head">
+                    <div class="graph-title">SOUND RATE GRAPH</div>
+                    <div class="graph-sub">Real-time dB Log</div>
+                </div>
                 <div style="height: 180px;">
                     <canvas id="soundChart"></canvas>
                 </div>
             </div>
+        </div>
 
-            <!-- Posture Chart -->
-            <div class="chart-card">
-                <div class="chart-title"><i class="fa-solid fa-chart-pie" style="color: var(--primary);"></i> สัดส่วนท่านอนสะสม</div>
-                <div style="height: 160px; display: flex; justify-content: center;">
-                    <canvas id="postureChart"></canvas>
-                </div>
+        <!-- Bottom Navigation Bar -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="disconnectDevice()">
+                <i class="fa-solid fa-border-all"></i>
+                <span>Pillow</span>
             </div>
-
-            <!-- Event Log Table -->
-            <div class="table-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <div class="chart-title" style="margin: 0;"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการกรน</div>
-                    <button onclick="exportCSV()" style="background: none; border: none; color: var(--primary); font-weight: 600; font-size: 0.75rem; cursor: pointer;">
-                        <i class="fa-solid fa-download"></i> CSV
-                    </button>
-                </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>เวลา</th>
-                                <th>เสียง (dB)</th>
-                                <th>ท่านอน</th>
-                                <th>สั่นเตือน</th>
-                            </tr>
-                        </thead>
-                        <tbody id="logTableBody">
-                            <tr>
-                                <td colspan="4" style="text-align: center; color: var(--text-sub);">กำลังรอข้อมูลจากหมอน...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="nav-item">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Sleep History</span>
+            </div>
+            <div class="nav-item">
+                <i class="fa-solid fa-user"></i>
+                <span>Account</span>
             </div>
         </div>
 
@@ -305,54 +394,9 @@
 
         let activePillowRef = null;
         let currentDeviceId = "";
-        let eventLogs = [];
-        let postureStats = { "นอนหงาย": 1, "นอนตะแคงซ้าย": 0, "นอนตะแคงขวา": 0, "ก้ม/เงย": 0 };
-
-        // UI Helpers
-        function toggleCustomInput(select) {
-            const customGroup = document.getElementById('customInputGroup');
-            if (select.value === 'custom') {
-                customGroup.classList.remove('hidden');
-            } else {
-                customGroup.classList.add('hidden');
-            }
-        }
 
         // =========================================================
-        // 2. Connect & Disconnect System
-        // =========================================================
-        function connectDevice() {
-            const selectVal = document.getElementById('selectDeviceId').value;
-            if (selectVal === 'custom') {
-                currentDeviceId = document.getElementById('inputCustomId').value.trim();
-                if (!currentDeviceId) return alert('กรุณากรอก Device ID');
-            } else {
-                currentDeviceId = selectVal;
-            }
-
-            // Update UI Header
-            document.getElementById('txtConnectedId').innerText = currentDeviceId;
-
-            // Switch Screen
-            document.getElementById('screenConnect').classList.add('hidden');
-            document.getElementById('screenDashboard').classList.remove('hidden');
-
-            // Start Firebase Listener
-            listenToPillow(currentDeviceId);
-        }
-
-        function disconnectDevice() {
-            if (activePillowRef) {
-                activePillowRef.off(); // ปิด Connection เดิม
-            }
-
-            // Switch Screen back
-            document.getElementById('screenDashboard').classList.add('hidden');
-            document.getElementById('screenConnect').classList.remove('hidden');
-        }
-
-        // =========================================================
-        // 3. Chart Setup
+        // 2. Chart Setup (Chart.js)
         // =========================================================
         const ctxLine = document.getElementById('soundChart').getContext('2d');
         const soundChart = new Chart(ctxLine, {
@@ -362,7 +406,7 @@
                 datasets: [{
                     data: [],
                     borderColor: '#2563eb',
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    backgroundColor: 'rgba(37, 99, 235, 0.08)',
                     fill: true,
                     tension: 0.3,
                     borderWidth: 2,
@@ -373,32 +417,42 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: { min: 20, max: 90, grid: { color: '#f1f5f9' } },
-                    x: { grid: { display: false } }
+                    y: { min: 30, max: 100, grid: { color: '#f1f5f9' }, ticks: { stepSize: 10 } },
+                    x: { grid: { display: false }, ticks: { display: false } }
                 },
                 plugins: { legend: { display: false } }
             }
         });
 
-        const ctxPie = document.getElementById('postureChart').getContext('2d');
-        const postureChart = new Chart(ctxPie, {
-            type: 'doughnut',
-            data: {
-                labels: ['นอนหงาย', 'ตะแคงซ้าย', 'ตะแคงขวา', 'ก้ม/เงย'],
-                datasets: [{
-                    data: [1, 0, 0, 0],
-                    backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#ef4444']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'right' } }
-            }
-        });
+        // =========================================================
+        // 3. Device Connection Handlers
+        // =========================================================
+        function addAndConnectDevice() {
+            const devId = document.getElementById('inputDeviceId').value.trim();
+            if (!devId) return alert('Please enter Device ID');
+            connectSpecificDevice(devId);
+        }
+
+        function connectSpecificDevice(devId) {
+            currentDeviceId = devId;
+            document.getElementById('txtDashTitle').innerText = `Smart Pillow (${devId})`;
+
+            // Switch Screen
+            document.getElementById('screenConnect').classList.add('hidden');
+            document.getElementById('screenDashboard').classList.remove('hidden');
+
+            // Start Firebase Realtime Listener
+            listenToPillow(devId);
+        }
+
+        function disconnectDevice() {
+            if (activePillowRef) activePillowRef.off();
+            document.getElementById('screenDashboard').classList.add('hidden');
+            document.getElementById('screenConnect').classList.remove('hidden');
+        }
 
         // =========================================================
-        // 4. Listen to Firebase Realtime
+        // 4. Realtime Data Listener
         // =========================================================
         function listenToPillow(deviceId) {
             activePillowRef = database.ref('/devices/' + deviceId);
@@ -412,84 +466,64 @@
                 const pitchVal = data.pitch !== undefined ? Number(data.pitch) : 0;
                 const rollVal = data.roll !== undefined ? Number(data.roll) : 0;
                 const isVibe = data.isVibrating || false;
-                const postureText = data.posture || getPosture(pitchVal, rollVal);
+                const postureText = data.posture || getPostureEng(pitchVal, rollVal);
 
-                // Update Cards
+                // Update UI Values
                 document.getElementById('valDb').innerText = soundDb.toFixed(1);
                 document.getElementById('valPitch').innerText = pitchVal.toFixed(1) + '°';
                 document.getElementById('valRoll').innerText = rollVal.toFixed(1) + '°';
                 document.getElementById('valPosture').innerText = postureText;
 
-                // Progress Bar
-                const bar = document.getElementById('barDb');
-                bar.style.width = Math.min((soundDb / 90) * 100, 100) + '%';
-                bar.style.backgroundColor = soundDb > 50 ? 'var(--danger)' : 'var(--primary)';
-
-                // Vibration Badge
-                const vibeElem = document.getElementById('vibeContainer');
-                if (isVibe) {
-                    vibeElem.innerHTML = '<span class="vibe-badge vibe-on">⚡ กำลังสั่นเตือน!</span>';
-                    addLog(nowStr, soundDb, postureText, "สั่นเตือน");
+                // Environment Status Text
+                const envText = document.getElementById('valSoundEnv');
+                if (soundDb > 60) {
+                    envText.innerText = "Loud Snoring Detected";
+                    envText.style.color = "#f87171";
+                } else if (soundDb > 50) {
+                    envText.innerText = "Moderate Noise";
+                    envText.style.color = "#fbbf24";
                 } else {
-                    vibeElem.innerHTML = '<span class="vibe-badge vibe-off">ปกติ</span>';
+                    envText.innerText = "Quiet Environment";
+                    envText.style.color = "#94a3b8";
+                }
+
+                // Vibration Card Status
+                const vibeBox = document.getElementById('vibeIconBox');
+                const vibeTag = document.getElementById('vibeTag');
+                const vibeText = document.getElementById('vibeStatusText');
+
+                if (isVibe) {
+                    vibeBox.style.background = "#fee2e2"; vibeBox.style.color = "#ef4444";
+                    vibeBox.innerHTML = '<i class="fa-solid fa-bell"></i>';
+                    vibeTag.style.background = "#fee2e2"; vibeTag.style.color = "#ef4444";
+                    vibeTag.innerText = "Active";
+                    vibeText.innerText = "Vibrating...";
+                } else {
+                    vibeBox.style.background = "#f1f5f9"; vibeBox.style.color = "#64748b";
+                    vibeBox.innerHTML = '<i class="fa-solid fa-bell-slash"></i>';
+                    vibeTag.style.background = "#f1f5f9"; vibeTag.style.color = "#64748b";
+                    vibeTag.innerText = "Inactive";
+                    vibeText.innerText = "Vibration Off";
                 }
 
                 // Update Sound Chart
                 soundChart.data.labels.push(nowStr);
                 soundChart.data.datasets[0].data.push(soundDb);
-                if (soundChart.data.labels.length > 15) {
+                if (soundChart.data.labels.length > 20) {
                     soundChart.data.labels.shift();
                     soundChart.data.datasets[0].data.shift();
                 }
                 soundChart.update();
-
-                // Update Posture Chart
-                if (postureStats[postureText] !== undefined) {
-                    postureStats[postureText]++;
-                } else {
-                    postureStats["ก้ม/เงย"]++;
-                }
-                postureChart.data.datasets[0].data = [
-                    postureStats["นอนหงาย"],
-                    postureStats["นอนตะแคงซ้าย"],
-                    postureStats["นอนตะแคงขวา"],
-                    postureStats["ก้ม/เงย"]
-                ];
-                postureChart.update();
             });
         }
 
-        function getPosture(p, r) {
-            if (r > 20) return "นอนตะแคงขวา";
-            if (r < -20) return "นอนตะแคงซ้าย";
-            if (Math.abs(p) > 20) return "ก้ม/เงย";
-            return "นอนหงาย";
-        }
-
-        function addLog(time, db, posture, status) {
-            eventLogs.unshift({ time, db, posture, status });
-            if (eventLogs.length > 8) eventLogs.pop();
-
-            const tbody = document.getElementById('logTableBody');
-            tbody.innerHTML = eventLogs.map(log => `
-                <tr>
-                    <td>${log.time}</td>
-                    <td><b>${log.db.toFixed(1)}</b></td>
-                    <td>${log.posture}</td>
-                    <td style="color:var(--danger); font-weight:600;">${log.status}</td>
-                </tr>
-            `).join('');
-        }
-
-        function exportCSV() {
-            if (eventLogs.length === 0) return alert('ยังไม่มีประวัติ');
-            let csv = 'Time,Sound_dB,Posture,Status\n';
-            eventLogs.forEach(r => csv += `${r.time},${r.db},${r.posture},${r.status}\n`);
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `Pillow_Log_${currentDeviceId}.csv`;
-            a.click();
+        // Posture English Format
+        function getPostureEng(p, r) {
+            if (r > 20) return "Right Side";
+            if (r < -20) return "Left Side";
+            if (p > 20) return "Head Elevated";
+            if (p < -20) return "Head Tilted Back";
+            return "Supine (Back)";
         }
     </script>
 </body>
